@@ -1,0 +1,39 @@
+{
+   "compilerOptions": {
+      "target": "es2025",
+      // Define a versão do JavaScript que o TypeScript vai gerar.
+      // ES5 é compatível com navegadores antigos.
+      "module": "commonjs",
+      // Define o sistema de módulos usado no output. CommonJS é padrão do Node.js.
+      "lib": [
+         "es6"
+      ],
+      // Define quais bibliotecas padrão do JS o TS vai usar. 
+      // ES6 inclui Promise, Map, Set, etc.
+      "allowJs": true,
+      // Permite compilar arquivos .js junto com .ts.
+      "outDir": "build",
+      // Pasta onde os arquivos JS compilados serão gerados.
+      "rootDir": "src",
+      // Pasta raiz do código-fonte TypeScript.
+      "strict": true,
+      // Ativa todas as verificações de tipo estritas (strict mode).
+      "noImplicitAny": true,
+      // Gera erro se algum tipo ficar implícito como 'any'.
+      "strictPropertyInitialization": false,
+      // Desativa erro quando propriedades de classe não são inicializadas no construtor.
+      "esModuleInterop": true,
+      // Permite importar módulos CommonJS com `import x from "y"` sem precisar `import * as x`.
+      "resolveJsonModule": true,
+      // Permite importar arquivos .json diretamente no TypeScript.
+      "experimentalDecorators": true,
+      // Habilita suporte experimental a decorators (ex.: @Entity no TypeORM).
+      "emitDecoratorMetadata": true,
+      // Gera metadados de tipos para decorators (necessário para TypeORM).
+      /* Advanced Options */
+      "skipLibCheck": true,
+      // Ignora checagem de tipos em arquivos de definição (.d.ts), acelera compilação.
+      "forceConsistentCasingInFileNames": true
+      // Garante que a importação de arquivos respeite maiúsculas e minúsculas.
+   }
+}
