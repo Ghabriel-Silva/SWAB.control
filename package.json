@@ -12,11 +12,15 @@
    "scripts": {
       "build": "tsc",
       "dev": "ts-node-dev src/shared/http/server.ts",
-      "typeorm": "ts-node-dev ./node_modules/typeorm/cli.js -d ./src/shared/database/data-source.ts"
+      "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
+      "migration:run": "npm run typeorm -- migration:run -d src/shared/database/data-source.ts",
+      "migration:revert": "npm run typeorm -- migration:revert -d src/shared/database/data-source.ts"
    },
    "devDependencies": {
       "@types/cors": "^2.8.19",
       "@types/express": "^5.0.6",
-      "ts-node-dev": "^2.0.0"
+      "ts-node": "^10.9.2",
+      "ts-node-dev": "^2.0.0",
+      "tsconfig-paths": "^4.2.0"
    }
 }

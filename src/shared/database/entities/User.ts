@@ -1,0 +1,36 @@
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { UserRole } from "../../../modules/user/role.enum";
+import { Company } from "./Company";
+
+@Entity()
+export class User {
+    @PrimaryGeneratedColumn()
+    id: string
+
+    @Column('varchar', { length: 50 })
+    name: string
+
+    @Column('varchar', { unique: true, length: 50 })
+    email: string
+
+    @Column('varchar', { length: 100})
+    password: string
+
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.LAB
+    })
+    role: UserRole
+
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
+
+    //N:1 foreign key
+    @ManyToOne(() => Company, company => company.users)
+    @JoinColumn({ name: 'companyId' })
+    company: Company
+}
