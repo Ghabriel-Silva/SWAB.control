@@ -1,0 +1,6 @@
+export enum SwabCheckResult {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  APPROVED = 'APPROVED',
+  REPROVED = 'REPROVED'
+}

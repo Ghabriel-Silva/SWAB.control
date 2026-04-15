@@ -1,14 +1,17 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Company } from "./Company";
-import { Operator } from "./Operator";
+import { Swab } from "./Swab";
 
-@Entity('laboratory')
-export class Laboratory {
+@Entity('tank')
+export class Tank {
     @PrimaryGeneratedColumn('uuid')
     id: string
 
     @Column('varchar', { length: 100 })
     name: string
+
+    @Column('varchar', { length: 600 })
+    description: string
 
     @CreateDateColumn()
     createdAt: Date
@@ -16,11 +19,10 @@ export class Laboratory {
     @UpdateDateColumn()
     updatedAt: Date
 
-    @ManyToOne(() => Company, company => company.laboratories)
+    @ManyToOne(() => Company, company => company.tanks)
     @JoinColumn({ name: 'companyId' })
     company: Company
 
-    //relacinamento com operadores
-    @OneToMany(() => Operator, operator => operator.laboratory)
-    operators: Operator[]
+    @OneToMany(() => Swab, swab => swab.tank)
+    swabs: Swab[]
 }

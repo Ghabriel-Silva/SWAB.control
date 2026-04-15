@@ -2,9 +2,9 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGenerat
 import { UserRole } from "../../../modules/user/role.enum";
 import { Company } from "./Company";
 
-@Entity()
+@Entity('user')
 export class User {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: string
 
     @Column('varchar', { length: 50 })
@@ -33,4 +33,6 @@ export class User {
     @ManyToOne(() => Company, company => company.users)
     @JoinColumn({ name: 'companyId' })
     company: Company
+
+
 }
