@@ -6,7 +6,6 @@ import { authMessages } from "../constants/auth.message";
 
 class AuthService {
     
-
     public generateToken(payloud: MyJwtPayload) {
         return jwtProvider.sign(payloud)
     }

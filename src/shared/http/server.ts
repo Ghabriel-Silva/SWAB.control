@@ -13,9 +13,9 @@ app.use(cors())
 
 app.use(express.json())
 
-app.use(errorMiddleware)
 
 app.use(routes)
+app.use(errorMiddleware)
 
 AppDataSource.initialize().then(async () => {
     console.log('DataBase start')

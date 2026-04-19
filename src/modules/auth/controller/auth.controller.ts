@@ -13,7 +13,7 @@ class AuthController {
         const payload = {
             id: "123",
             email: email || "teste@email.com",
-            role: UserRole.LAB,
+            role: UserRole.ADMIN,
             isActive: true
         }
 
