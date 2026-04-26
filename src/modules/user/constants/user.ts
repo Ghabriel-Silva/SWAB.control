@@ -1,6 +1,7 @@
 export const userMessages = {
     create: {
         success: 'Usuário criado com sucesso',
+        error:'Não foi possivel criar usuário',
         emailAlreadyExists: 'Email já está em uso'
     },
 

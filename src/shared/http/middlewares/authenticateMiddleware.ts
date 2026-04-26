@@ -1,21 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../errors/AppError";
 import { MyJwtPayload } from "../../auth/types/auth.types";
-import jwt from "jsonwebtoken";
-import { jwtSecret } from "../../auth/jwt";
-import AuthService from "../../../modules/auth/service/auth.service";
 import { authMessages } from "../../../modules/auth/constants/auth.message";
+import TokenService from "../../../modules/auth/service/token.service";
 
-
-declare global {
-    namespace Express {
-        interface Request {
-            user?: MyJwtPayload
-        }
-    }
-}
-
-const authService = new AuthService()
+const tokenService = new TokenService()
 
 const authenticateMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization
@@ -31,17 +20,16 @@ const authenticateMiddleware = (req: Request, res: Response, next: NextFunction)
     }
 
     if (!token) {
-        throw new AppError(401, authMessages.login.tokenNotFound)
+        throw new AppError(401, authMessages.token.tokenNotFound)
     }
 
     try {
-        const payloud: MyJwtPayload = authService.authenticateToken(token)
-        req.user = payloud
-
+        const payload: MyJwtPayload = tokenService.authenticateToken(token)
+        req.user = payload
         next()
 
     } catch (err) {
-        throw new AppError(401, authMessages.login.tokenInvalid)
+        throw new AppError(401, authMessages.token.tokenInvalid)
     }
 }
 

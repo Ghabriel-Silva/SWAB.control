@@ -4,6 +4,7 @@
    "description": "Awesome project developed with TypeORM.",
    "type": "commonjs",
    "dependencies": {
+      "bcrypt": "^6.0.0",
       "cors": "^2.8.6",
       "express": "^4.22.1",
       "express-async-errors": "^3.1.1",
@@ -13,17 +14,19 @@
    },
    "scripts": {
       "build": "tsc",
-      "dev": "ts-node-dev src/shared/http/server.ts",
+      "dev": "ts-node-dev --respawn --transpile-only --files src/shared/http/server.ts",
       "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
       "migration:run": "npm run typeorm -- migration:run -d src/shared/database/data-source.ts",
       "migration:revert": "npm run typeorm -- migration:revert -d src/shared/database/data-source.ts"
    },
    "devDependencies": {
+      "@types/bcrypt": "^6.0.0",
       "@types/cors": "^2.8.19",
       "@types/express": "^5.0.6",
       "@types/jsonwebtoken": "^9.0.10",
       "ts-node": "^10.9.2",
       "ts-node-dev": "^2.0.0",
-      "tsconfig-paths": "^4.2.0"
+      "tsconfig-paths": "^4.2.0",
+      "typeorm": "^0.3.28"
    }
 }

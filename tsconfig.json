@@ -8,6 +8,10 @@
       "lib": [
          "es6"
       ],
+      "typeRoots": [
+         "./node_modules/@types",
+         "./src/@types"
+      ],
       // Define quais bibliotecas padrão do JS o TS vai usar. 
       // ES6 inclui Promise, Map, Set, etc.
       "allowJs": true,

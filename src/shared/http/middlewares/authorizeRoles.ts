@@ -9,7 +9,7 @@ const roleHierarchy: Record<UserRole, number> = {
     [UserRole.LAB]: 1,
 };
 
-const authorizeRoles = (...allowedRoles: UserRole[]) => {
+const authorizeRoles = (...allowedRoles: UserRole[]) => { 
     return (req: Request, res: Response, next: NextFunction) => {
         const userRole = req.user?.role
 
@@ -17,18 +17,11 @@ const authorizeRoles = (...allowedRoles: UserRole[]) => {
             throw new AppError(403, "Acesso negado")
         }
 
-        const userLevel = roleHierarchy[userRole]
-
-        const minRequiredLevel = Math.min(
-            ...allowedRoles.map(role => roleHierarchy[role])
-        )
-
-        if (userLevel < minRequiredLevel) {
-            throw new AppError(403, "Sem permissão")
+        if(!allowedRoles.includes(userRole)){
+            throw new AppError(403, "Sem permição")
         }
-
         next();
-    };
+    }
 };
 
 export default authorizeRoles

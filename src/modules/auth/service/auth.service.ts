@@ -1,25 +1,18 @@
-import { jwtProvider } from "../../../shared/auth/jwt";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
-import AppError from "../../../shared/errors/AppError";
-import { authMessages } from "../constants/auth.message";
-
-
+import { CreateUserType } from "../dto/schemas/create-user.schema";
+import { LoginUserType } from "../dto/schemas/login-user.schema";
+import LoginService from "./login.service";
+import RegisterService from "./register.service";
 class AuthService {
-    
-    public generateToken(payloud: MyJwtPayload) {
-        return jwtProvider.sign(payloud)
+    constructor(
+        private loginService: LoginService,
+        private registerService: RegisterService, 
+    ){}
+    async login(data: LoginUserType) {
+        return this.loginService.execute(data)
     }
-
-    public authenticateToken(token: string):MyJwtPayload {
-        if (!token) {
-            throw new AppError(401, authMessages.login.tokenNotFound)
-        }
-        try {
-            return jwtProvider.verify(token) as MyJwtPayload
-        } catch (err) {
-            throw new AppError(401, "Token inválido ou expirado")
-        }
+    async register(data: CreateUserType, payloud:MyJwtPayload) {
+        return this.registerService.execute(data, payloud)
     }
 }
-
 export default AuthService

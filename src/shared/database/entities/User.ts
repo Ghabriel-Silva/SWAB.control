@@ -13,8 +13,9 @@ export class User {
     @Column('varchar', { unique: true, length: 50 })
     email: string
 
-    @Column('varchar', { length: 100})
+    @Column('varchar', { length: 100 })
     password: string
+
 
     @Column({
         type: 'enum',
@@ -22,6 +23,9 @@ export class User {
         default: UserRole.LAB
     })
     role: UserRole
+
+    @Column('boolean', { default:true})
+    isActive: boolean
 
     @CreateDateColumn()
     createdAt: Date
@@ -33,6 +37,4 @@ export class User {
     @ManyToOne(() => Company, company => company.users)
     @JoinColumn({ name: 'companyId' })
     company: Company
-
-
 }

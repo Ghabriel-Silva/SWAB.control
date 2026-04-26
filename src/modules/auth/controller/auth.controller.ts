@@ -2,25 +2,25 @@ import { Request, Response } from "express";
 import { successResponse } from "../../../shared/responses/success";
 import { authMessages } from "../constants/auth.message";
 import AuthService from "../service/auth.service";
-import { UserRole } from "../../user/domain/role.enum";
+import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 
 class AuthController {
-    constructor(private authService: AuthService) {}
-    
+    constructor(private authService: AuthService) { }
+
     login = async (req: Request, res: Response) => {
-        const { email, password } = req.body
-
-        const payload = {
-            id: "123",
-            email: email || "teste@email.com",
-            role: UserRole.ADMIN,
-            isActive: true
-        }
-
-        const result = this.authService.generateToken(payload)
+        const result  = await this.authService.login(req.body)
 
         res.json(
             successResponse(result, authMessages.login.success)
+        )
+    }
+
+    register = async (req: Request, res: Response) => {
+        const payload = req.user as MyJwtPayload
+
+        const result = await this.authService.register(req.body, payload)
+        res.json(
+            successResponse(result, authMessages.register.success)
         )
     }
 }
