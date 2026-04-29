@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserRole } from "../../../modules/user/domain/role.enum";
 import { Company } from "./Company";
+import { Laboratory } from "./Laboratory";
 
 @Entity('user')
 export class User {
@@ -37,4 +38,9 @@ export class User {
     @ManyToOne(() => Company, company => company.users)
     @JoinColumn({ name: 'companyId' })
     company: Company
+
+    //relacionamento com laboratorio caso o usuario seja LAB 
+    @ManyToOne(()=>Laboratory,laboratory => laboratory.users, {nullable: true})
+    @JoinColumn({ name: 'laboratoryId' })
+    laboratory?:Laboratory
 }

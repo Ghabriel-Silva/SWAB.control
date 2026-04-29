@@ -5,6 +5,7 @@ import { CreateUserType } from "../dto/schemas/create-user.schema"
 import { UserRole } from "../../user/domain/role.enum"
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
 import { Company } from "../../../shared/database/entities/Company"
+import { userSafe } from "../dto/types/userSafe"
 
 
 class AuthRepository {
@@ -24,7 +25,7 @@ class AuthRepository {
         )
     }
 
-    register = async (data: CreateUserType, payload: MyJwtPayload): Promise<User> => {
+    register = async (data: CreateUserType, payload: MyJwtPayload): Promise<userSafe> => {
         const company = await this.companyRepository.findOneBy({
             id: payload.companyId
         })
@@ -41,7 +42,14 @@ class AuthRepository {
             company 
         })
         
-        return this.userRepository.save(userData)
+      const safeUser = await this.userRepository.save(userData)
+
+      return {
+         email:safeUser.email, 
+         id:safeUser.id, 
+         name:safeUser.name
+      } as userSafe
+       
     }
 
     emailExist = async (email: string): Promise<boolean> => {

@@ -10,7 +10,8 @@ export const authMessages = {
         success: 'Usuário criado com sucesso',
         error: 'Não foi possivel criar usuário',
         emailAlreadyExists: 'Email já está em uso, tente novamente',
-        roleIsLab:'Laboratório é obrigatório quando o usuário é LAB'
+        roleIsLab:'Laboratório é obrigatório quando o usuário é LAB',
+        adminNotPermition:'Você não tem permição para criar outro Administrador'
     },
     token: {
         unauthorized: 'Não autorizado',

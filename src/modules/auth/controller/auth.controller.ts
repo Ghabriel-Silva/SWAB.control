@@ -3,6 +3,7 @@ import { successResponse } from "../../../shared/responses/success";
 import { authMessages } from "../constants/auth.message";
 import AuthService from "../service/auth.service";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
+import { userSafe } from "../dto/types/userSafe";
 
 class AuthController {
     constructor(private authService: AuthService) { }
@@ -18,7 +19,7 @@ class AuthController {
     register = async (req: Request, res: Response) => {
         const payload = req.user as MyJwtPayload
 
-        const result = await this.authService.register(req.body, payload)
+        const result:userSafe = await this.authService.register(req.body, payload)
         res.json(
             successResponse(result, authMessages.register.success)
         )
