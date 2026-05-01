@@ -1,7 +1,7 @@
 import { jwtProvider } from "../../../shared/auth/jwt";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import AppError from "../../../shared/errors/AppError";
-import { authMessages } from "../constants/auth.message";
+import { authMessages } from "../constants/auth.messages";
 
 
 class TokenService {

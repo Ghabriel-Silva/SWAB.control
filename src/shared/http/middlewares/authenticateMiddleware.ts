@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../errors/AppError";
 import { MyJwtPayload } from "../../auth/types/auth.types";
-import { authMessages } from "../../../modules/auth/constants/auth.message";
+import { authMessages } from "../../../modules/auth/constants/auth.messages";
 import TokenService from "../../../modules/auth/service/token.service";
 
 const tokenService = new TokenService()

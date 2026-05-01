@@ -2,7 +2,7 @@ import { CreateUserType } from "../dto/schemas/create-user.schema"
 import bcrypt from "bcrypt";
 import AuthRepository from "../repositories/auth.repository";
 import AppError from "../../../shared/errors/AppError";
-import { authMessages } from "../constants/auth.message";
+import { authMessages } from "../constants/auth.messages";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { UserRole } from "../../user/domain/role.enum";
 import { userSafe } from "../dto/types/userSafe";
@@ -10,7 +10,7 @@ import { userSafe } from "../dto/types/userSafe";
 class RegisterService {
     constructor(
         private authRepository: AuthRepository,
-    private readonly saltRounds = Number(process.env.BCRYPT_SALT)
+        private readonly saltRounds = Number(process.env.BCRYPT_SALT)
 
     ) { }
     async execute(data: CreateUserType, payload: MyJwtPayload) {
@@ -29,7 +29,7 @@ class RegisterService {
             throw new AppError(409, authMessages.register.emailAlreadyExists)
         }
 
-       //Valida se o hash da senha esta valido
+        //Valida se o hash da senha esta valido
         if (!this.saltRounds) {
             throw new Error("BCRYPT_SALT inválido")
         }

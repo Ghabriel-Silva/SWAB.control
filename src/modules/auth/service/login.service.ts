@@ -1,6 +1,6 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import AppError from "../../../shared/errors/AppError";
-import { authMessages } from "../constants/auth.message";
+import { authMessages } from "../constants/auth.messages";
 import { LoginUserType } from "../dto/schemas/login-user.schema";
 import AuthRepository from "../repositories/auth.repository";
 import TokenService from "./token.service";
@@ -11,7 +11,7 @@ class LoginService {
         private tokenService: TokenService,
         private authRepository: AuthRepository
     ) { }
-    async execute(data: LoginUserType){
+    async execute(data: LoginUserType) {
         //validar se o user existe
         const user = await this.authRepository.login(data.email)
         if (!user) {
