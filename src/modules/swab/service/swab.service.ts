@@ -5,7 +5,7 @@ class SwabService {
  constructor( private  swabCreate: CreateSwab){}
 
     async create(){
-        return await this.swabCreate
+        return await this.swabCreate.execute
     }
 }
 
