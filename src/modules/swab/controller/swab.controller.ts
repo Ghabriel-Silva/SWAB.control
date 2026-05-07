@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
 import { successResponse } from "../../../shared/responses/success";
 import SwabService from "../service/swab.service";
+import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 
 class SwabController {
     constructor(private swabService: SwabService){}
 
     create =  async (req:Request, res:Response)=>{
-        const response = await this.swabService.create
+        const payloud = req.user as MyJwtPayload
+        const response = await this.swabService.create(req.body, payloud)
         
         return res.json(
-            successResponse(null, 'chegou aui')
+            successResponse(response, 'Swab Criado')
         )
     }
 }
