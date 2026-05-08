@@ -1,40 +1,49 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
+import { Swab } from "../../../shared/database/entities/Swab"
 import { Tank } from "../../../shared/database/entities/Tank"
 import AppError from "../../../shared/errors/AppError"
+import { verifyFaucetCode } from "../../SwabCheck/domain/VerifyFaucetCode"
+import { verifyNextSwab } from "../../SwabCheck/domain/verifyNextSwab"
 import { CreateSwabType } from "../dto/schemas/create.swab.schema"
+import { SwabHistoryByTank } from "../dto/types/swabHistoryByTank"
+import { validateTanks } from "../dto/types/validateTanks"
 import SwabRepository from "../repository/swab.respository"
 
 
 class CreateSwab {
     constructor(private swabRepository: SwabRepository) { }
 
-    async execute(data: CreateSwabType, payloud: MyJwtPayload) {
+    async execute(data: CreateSwabType, payload: MyJwtPayload) {
         //Método para validação do tanks retorna tanks invalidos também
-        const validTanks = await this.validateTanks(data, payloud)
+        const validTanks: validateTanks = await this.validateTanks(data, payload)
+
+        //Buscar histórico (SwabCheck)
+        const historySwabs = await this.historySwabs(validTanks, payload)
+
+        //Buscar a torneira do tank
+        const faucetCode = verifyFaucetCode(historySwabs)
+        console.log(faucetCode)
 
         
-        return validTanks
-        //Buscar histórico (SwabCheck)
-        //pega últimos checks daquele tanque
-
-
-        // Decidir próximo tipo VISUAL ou ATP
-
-
+        // Decidir próximo tipo VISUAL ou ATP regra de negocio 
+        const nextSwab =  verifyNextSwab(historySwabs)
+        console.log(nextSwab)
 
         // Criar Swab
-        // Swab → ligado ao Tank + Operator
+
+        const createSwab = await this.swabRepository.create(data, payload)
 
 
-        // Criar SwabCheck automático
-        // SwabCheck → ligado ao Swab
 
-        // return await this.swabRepository.create(data, payloud)
+        //centralizar dados pra enviar para o frontend
+
+
+
     }
 
 
 
-    private async validateTanks(data: CreateSwabType, payloud: MyJwtPayload) {
+    private async validateTanks(data: CreateSwabType, payloud: MyJwtPayload): Promise<validateTanks> {
         const invalidTanks: string[] = []
         const validTanks: Tank[] = []
 
@@ -52,6 +61,19 @@ class CreateSwab {
             validTanks,
             invalidTanks
         }
+    }
+
+    private async historySwabs(validTanks: validateTanks, payload: MyJwtPayload): Promise<SwabHistoryByTank> {
+        //Buscar histórico (SwabCheck)
+        const result: Record<string, Swab[]> = {}
+
+        for (const tank of validTanks.validTanks) {
+            const swabs = await this.swabRepository.historySwab(tank.id, payload)
+
+            result[tank.name] = swabs
+        }
+
+        return result
     }
 }
 

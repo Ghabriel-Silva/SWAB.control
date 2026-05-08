@@ -3,7 +3,8 @@ import {
     PrimaryGeneratedColumn,
     ManyToOne,
     Column,
-    CreateDateColumn
+    CreateDateColumn,
+    OneToOne
 } from 'typeorm'
 import { Swab } from './Swab'
 import { SwabCheckType } from '../../../modules/SwabCheck/domain/swabCheck.enum';
@@ -15,7 +16,7 @@ export class SwabCheck {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => Swab, swab => swab.checks, {
+    @OneToOne(() => Swab, swab => swab.check, {
         onDelete: 'CASCADE'
     })
     swab: Swab

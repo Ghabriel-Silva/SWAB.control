@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { Operator } from "./Operator";
 import { Tank } from "./Tank";
 import { SwabCheck } from "./SwabCheck";
@@ -14,10 +14,14 @@ export class Swab {
     @ManyToOne(() => Tank, tank => tank.swabs)
     tank: Tank;
 
-    @OneToMany(() => SwabCheck, check => check.swab, {
+    @Column('varchar', {nullable:true, length:10})
+    faucetCode: string
+
+    @OneToOne(() => SwabCheck, check => check.swab, {
         cascade: true
     })
-    checks: SwabCheck[]
+    @JoinColumn({ name: 'swabCheckId' })
+    check: SwabCheck
 
     @CreateDateColumn()
     createdAt: Date
