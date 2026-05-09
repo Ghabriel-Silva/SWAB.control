@@ -14,7 +14,7 @@ export class Swab {
     @ManyToOne(() => Tank, tank => tank.swabs)
     tank: Tank;
 
-    @Column('varchar', {nullable:true, length:10})
+    @Column('varchar', {nullable:true, length:50})
     faucetCode: string
 
     @OneToOne(() => SwabCheck, check => check.swab, {

@@ -4,6 +4,8 @@ import { AppDataSource } from "../../../shared/database/data-source";
 import { CreateSwabType } from "../dto/schemas/create.swab.schema";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { Tank } from "../../../shared/database/entities/Tank";
+import { SwabCheckType } from "../../SwabCheck/domain/swabCheck.enum";
+import { SwabCheckResult } from "../../SwabCheck/domain/swabResult.enum";
 
 
 class SwabRepository {
@@ -15,10 +17,22 @@ class SwabRepository {
         this.tankRepository = AppDataSource.getRepository(Tank)
     }
 
-    create = async (data: CreateSwabType, payloud: MyJwtPayload) => {
-        const swabData =  this.swabRepository.create({
-            
+    create = async (
+        tank: Tank,
+        type: SwabCheckType
+    ) => {
+
+        
+        const swab = this.swabRepository.create({
+            tank,
+            check: {
+                type: type,
+                result: SwabCheckResult.PENDING,
+            },
         })
+        const res = await this.swabRepository.save(swab)
+    
+        return res
     }
 
     existTank = async (tank: string, payloud: MyJwtPayload) => {
