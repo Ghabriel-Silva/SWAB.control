@@ -43,8 +43,6 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
             continue
         }
         result[tankName] = SwabCheckType.VISUAL
-
-
     }
 
     return {
