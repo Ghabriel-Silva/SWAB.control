@@ -22,7 +22,7 @@ class CreateSwab {
 
         //Busca os 3 ultimos swabs realizados e retorna tanto o swab quanto seu relacionamento com swabCheck retorno ex: c2:[swab{},swab{}]
         const historySwabs: SwabHistoryByTank = await this.historySwabs(validTanks, payload)
-
+        
         //Buscar a torneira do tank
         const faucetCode = verifyFaucetCode(historySwabs)
 
@@ -42,12 +42,11 @@ class CreateSwab {
 
     private async createSwab(
         tanksValid: validateTanks,
-        typeSwab: Record<string, SwabCheckType>,
-        peddingSwabs: PendingSwab[], 
-        faucetCode:Record<string, string>
-    ):Promise<CreateResponses> {
+        infoSwab: Record<string, SwabCheckType>,
+        peddingSwabs: PendingSwab[],
+        faucetCode: Record<string, string>
+    ): Promise<CreateResponses> {
         const swabsCreated = []
-
         for (const tankName of tanksValid.validTanks) {
 
             //pegando os swabs validos e verificando se eles tem o result pendding, a função validTanks valida apenas se os tanks existem 
@@ -55,19 +54,17 @@ class CreateSwab {
             if (swabsPenddings.includes(tankName.name)) {
                 continue
             }
-
             //para criar um novo swab preciso saber basicamente de 2 coisas o tank e o tipo de swab que sera feito
-
-            const swabType = typeSwab[tankName.name]
+            const swabType = infoSwab[tankName.name]
             const swab = await this.swabRepository.create(
                 tankName,
                 swabType
             )
             swabsCreated.push(swab)
         }
-    
-        const swabsResponses: SwabsResponses[] = swabsCreated.map(swab => 
-            ({
+
+        const swabsResponses: SwabsResponses[] = swabsCreated.map(swab =>
+        ({
             id: swab.id,
             tank: {
                 id: swab.tank.id,
@@ -116,7 +113,7 @@ class CreateSwab {
         const result: Record<string, Swab[]> = {}
 
         for (const tank of validTanks.validTanks) {
-            const swabs = await this.swabRepository.historySwab(tank.id, payload)
+            const swabs = await this.swabRepository.historySwab(tank.id, payload, tank.atpFrequency)
 
             result[tank.name] = swabs
         }

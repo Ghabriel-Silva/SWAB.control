@@ -10,6 +10,9 @@ export class Tank {
     @Column('varchar', { length: 100 })
     name: string
 
+    @Column('int', { default: 3 })
+    atpFrequency: number
+
     @Column('varchar', { length: 600 })
     description: string
 

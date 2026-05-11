@@ -1,7 +1,6 @@
 import { Repository } from "typeorm";
 import { Swab } from "../../../shared/database/entities/Swab";
 import { AppDataSource } from "../../../shared/database/data-source";
-import { CreateSwabType } from "../dto/schemas/create.swab.schema";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { Tank } from "../../../shared/database/entities/Tank";
 import { SwabCheckType } from "../../SwabCheck/domain/swabCheck.enum";
@@ -21,8 +20,6 @@ class SwabRepository {
         tank: Tank,
         type: SwabCheckType
     ) => {
-
-        
         const swab = this.swabRepository.create({
             tank,
             check: {
@@ -31,7 +28,7 @@ class SwabRepository {
             },
         })
         const res = await this.swabRepository.save(swab)
-    
+
         return res
     }
 
@@ -42,15 +39,11 @@ class SwabRepository {
                 company: {
                     id: payloud.companyId
                 },
-
-
             },
         })
     }
-
-
-    historySwab = async (tanks: string, payloud: MyJwtPayload) => {
-        return await this.swabRepository.find({
+    historySwab = async (tanks: string, payloud: MyJwtPayload, frequencyATP: number) => {
+        const res =  await this.swabRepository.find({
             where: {
                 tank: {
                     id: tanks,
@@ -66,8 +59,10 @@ class SwabRepository {
             order: {
                 createdAt: "DESC"
             },
-            take: 3
+            take: frequencyATP
         })
+        console.log(JSON.stringify(res, null, 2))
+        return res
     }
 }
 

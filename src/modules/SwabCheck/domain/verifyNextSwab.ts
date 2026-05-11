@@ -15,33 +15,49 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         }
         const lastSwab = tankSwab[0]
 
+        if (!lastSwab.check) {
+            pedding.push({
+                tank: tankName,
+                message: `O tank ${tankName} possui swab sem check`
+            })
+            continue
+        }
+        const frequencyATP = lastSwab.tank.atpFrequency
         const lastResultSwab = lastSwab.check.result
-
+    
         //Para n deixar depois criar swabs pendentes 
         if (lastResultSwab === SwabCheckResult.PENDING) {
             pedding.push({
                 tank: tankName,
-                message: `O tank ${tankName} tem um swab pendente`
+                message: `O tank ${tankName} possui swab pendente`
             })
             continue
         }
 
-
+        //Se o ultimo swab for reprovado automaticamente o proximo sera atp
         if (lastResultSwab === SwabCheckResult.REPROVED) {
             result[tankName] = SwabCheckType.ATP
             continue
         }
 
-        const lastThree: Swab[] = tankSwab.slice(0, 3)
-
-        const allAprovet: boolean = lastThree.every(
-            s => s.check.result === SwabCheckResult.APPROVED
-        )
-
-        if (allAprovet && lastThree.length === 3) {
+        //se frequencia atp === 0 proximo swab sera Atp
+        if (frequencyATP === 0) {
             result[tankName] = SwabCheckType.ATP
             continue
         }
+
+        //Aqui pego basicamente a quantidade que preciso que o banco retorna
+        const requiredSwabs: Swab[] = tankSwab
+
+        const allAprovet: boolean = requiredSwabs.every(
+            s => s.check.result === SwabCheckResult.APPROVED
+        )
+
+        if (allAprovet && requiredSwabs.length === frequencyATP) {
+            result[tankName] = SwabCheckType.ATP
+            continue
+        }
+
         result[tankName] = SwabCheckType.VISUAL
     }
 
