@@ -1,14 +1,24 @@
-export const SwabMessages = {
-    create: {
+export const SWAB_MESSAGES = {
+    CREATE: {
+        SUCCESS: 'Swab criado com sucesso',
+        NO_SWABS_CREATED: 'Nenhum swab foi criado',
 
-    }, 
-    update:{
+        PENDING_SWAB: (tank: string) =>
+            `O tank ${tank} possui swab pendente`,
 
-    }, 
-    delete:{
-
+        PENDING_CHECK: (tank: string) =>
+            `O tank ${tank} possui swab sem check`,
     },
-    query:{
 
+    UPDATE: {
+        SUCCESS: 'Swab atualizado com sucesso'
+    },
+
+    DELETE: {
+        SUCCESS: 'Swab removido com sucesso'
+    },
+
+    QUERY: {
+        NOT_FOUND: 'Swab não encontrado'
     }
 }

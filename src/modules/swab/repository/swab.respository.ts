@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Swab } from "../../../shared/database/entities/Swab";
 import { AppDataSource } from "../../../shared/database/data-source";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
@@ -32,10 +32,10 @@ class SwabRepository {
         return res
     }
 
-    existTank = async (tank: string, payloud: MyJwtPayload) => {
-        return await this.tankRepository.findOne({
+    existTank = async (tanks: string[], payloud: MyJwtPayload):Promise<Tank[]>  => {
+        return await this.tankRepository.find({
             where: {
-                name: tank,
+                name:In(tanks),
                 company: {
                     id: payloud.companyId
                 },
@@ -61,7 +61,7 @@ class SwabRepository {
             },
             take: frequencyATP
         })
-        console.log(JSON.stringify(res, null, 2))
+
         return res
     }
 }

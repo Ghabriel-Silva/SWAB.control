@@ -3,6 +3,6 @@ import { SwabsResponses } from "./swabsResponses";
 
 export interface CreateResponses {
     invalidTanks: string[],
-    pedding:PendingSwab[],
+    pending: PendingSwab[],
     swabs: SwabsResponses[]
 }

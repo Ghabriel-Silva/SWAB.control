@@ -34,6 +34,12 @@ export class SwabCheck {
     result: SwabCheckResult
 
     @Column({ nullable: true })
+    validatedAt: Date
+
+    @Column({ nullable: true })
+    valueAtp: number
+
+    @Column({ nullable: true })
     batch: string;
 
     @CreateDateColumn()

@@ -1,4 +1,5 @@
 import { Swab } from "../../../shared/database/entities/Swab";
+import { SWAB_MESSAGES } from "../../swab/constants/swab.messages";
 import { PendingSwab } from "../../swab/dto/types/penddingSwabs";
 import { SwabHistoryByTank } from "../../swab/dto/types/swabHistoryByTank";
 import { SwabCheckType } from "./swabCheck.enum";
@@ -6,7 +7,7 @@ import { SwabCheckResult } from "./swabResult.enum";
 
 export function verifyNextSwab(swabs: SwabHistoryByTank) {
     const result: Record<string, SwabCheckType> = {}  // c2: 'VISUL'
-    const pedding: PendingSwab[] = []
+    const pending: PendingSwab[] = []
 
     for (const [tankName, tankSwab] of Object.entries(swabs)) {
         if (!tankSwab?.length) {
@@ -16,20 +17,19 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         const lastSwab = tankSwab[0]
 
         if (!lastSwab.check) {
-            pedding.push({
+            pending.push({
                 tank: tankName,
-                message: `O tank ${tankName} possui swab sem check`
+                message: SWAB_MESSAGES.CREATE.PENDING_CHECK(tankName) //O swab orbigatoriamente precisar ter o check, pois funciona como um historico 
             })
             continue
         }
         const frequencyATP = lastSwab.tank.atpFrequency
         const lastResultSwab = lastSwab.check.result
-    
         //Para n deixar depois criar swabs pendentes 
-        if (lastResultSwab === SwabCheckResult.PENDING) {
-            pedding.push({
+        if(lastResultSwab === SwabCheckResult.PENDING) {
+            pending.push({
                 tank: tankName,
-                message: `O tank ${tankName} possui swab pendente`
+                message: SWAB_MESSAGES.CREATE.PENDING_CHECK(tankName)
             })
             continue
         }
@@ -46,13 +46,15 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
             continue
         }
 
-        //Aqui pego basicamente a quantidade que preciso que o banco retorna
+        //Aqui  basicamente vou ter o check retornado para cada tank, e valido se em 'N' swabs o resultado é aprovado 
         const requiredSwabs: Swab[] = tankSwab
 
+        //se todos forem aprovados retorno true se n false 
         const allAprovet: boolean = requiredSwabs.every(
             s => s.check.result === SwabCheckResult.APPROVED
         )
 
+        //aqui acontece a magica, no caso se  dentro do array todos terem o resultado aprovado e o tamanho desse array for igual a frequencia defina no tank significa que o proximo swab sera ATP, se n corresponder a essa condição o swab sera visual
         if (allAprovet && requiredSwabs.length === frequencyATP) {
             result[tankName] = SwabCheckType.ATP
             continue
@@ -63,6 +65,6 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
 
     return {
         result,
-        pedding
+        pending
     }
 }

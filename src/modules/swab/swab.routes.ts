@@ -9,6 +9,7 @@ import authorizeRoles from "../../shared/http/middlewares/authorizeRoles";
 import { UserRole } from "../user/domain/role.enum";
 import { createSwabSchema } from "./dto/schemas/create.swab.schema";
 import validateData from "../../shared/http/middlewares/validateData";
+import { updateSwabSchema } from "./dto/schemas/update.swab.schema";
 
 const swabRoutes = Router()
 const swabRepository = new SwabRepository()
@@ -23,4 +24,9 @@ swabRoutes.post('/', //Create swab
     asyncHandler(swabController.create)
 )
 
+swabRoutes.put('/:id/check',
+    authenticateMiddleware,
+    validateData(updateSwabSchema, 'body'),
+    authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB)
+)
 export default swabRoutes

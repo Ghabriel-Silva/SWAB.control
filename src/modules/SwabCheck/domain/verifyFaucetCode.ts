@@ -10,7 +10,7 @@ export function verifyFaucetCode(historySwabs: SwabHistoryByTank) {
         const lastTorn = swabInfo[0]
 
         if (!lastTorn) {
-            tankTorn[tank] = 'Nenhum Swab Encontrado'
+            tankTorn[tank] = 'Nenhum Swab Encontrado, a torneira não foi definida'
             continue
         }
 
