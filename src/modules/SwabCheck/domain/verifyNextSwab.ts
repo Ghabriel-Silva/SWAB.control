@@ -1,7 +1,7 @@
 import { Swab } from "../../../shared/database/entities/Swab";
 import { SWAB_MESSAGES } from "../../swab/constants/swab.messages";
-import { PendingSwab } from "../../swab/dto/types/penddingSwabs";
-import { SwabHistoryByTank } from "../../swab/dto/types/swabHistoryByTank";
+import { PendingSwab } from "../../swab/dto/types/create/penddingSwabs";
+import { SwabHistoryByTank } from "../../swab/dto/types/create/swabHistoryByTank";
 import { SwabCheckType } from "./swabCheck.enum";
 import { SwabCheckResult } from "./swabResult.enum";
 
@@ -10,6 +10,8 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
     const pending: PendingSwab[] = []
 
     for (const [tankName, tankSwab] of Object.entries(swabs)) {
+
+        // Tanques sem histórico iniciam obrigatoriamente com ATP
         if (!tankSwab?.length) {
             result[tankName] = SwabCheckType.ATP
             continue
@@ -26,7 +28,7 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         const frequencyATP = lastSwab.tank.atpFrequency
         const lastResultSwab = lastSwab.check.result
         //Para n deixar depois criar swabs pendentes 
-        if(lastResultSwab === SwabCheckResult.PENDING) {
+        if (lastResultSwab === SwabCheckResult.PENDING) {
             pending.push({
                 tank: tankName,
                 message: SWAB_MESSAGES.CREATE.PENDING_CHECK(tankName)
@@ -47,7 +49,7 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         }
 
         //Aqui  basicamente vou ter o check retornado para cada tank, e valido se em 'N' swabs o resultado é aprovado 
-        const requiredSwabs: Swab[] = tankSwab
+        const requiredSwabs: Swab[] = tankSwab.slice(0, frequencyATP)
 
         //se todos forem aprovados retorno true se n false 
         const allAprovet: boolean = requiredSwabs.every(

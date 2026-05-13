@@ -5,11 +5,11 @@ import { SwabCheckType } from "../../SwabCheck/domain/swabCheck.enum"
 import { verifyFaucetCode } from "../../SwabCheck/domain/verifyFaucetCode"
 import { verifyNextSwab } from "../../SwabCheck/domain/verifyNextSwab"
 import { CreateSwabType } from "../dto/schemas/create.swab.schema"
-import { CreateResponses } from "../dto/types/createResponse"
-import { PendingSwab } from "../dto/types/penddingSwabs"
-import { SwabHistoryByTank } from "../dto/types/swabHistoryByTank"
-import { SwabsResponses } from "../dto/types/swabsResponses"
-import { validateTanks } from "../dto/types/validateTanks"
+import { CreateResponses } from "../dto/types/create/createResponse"
+import { PendingSwab } from "../dto/types/create/penddingSwabs"
+import { SwabHistoryByTank } from "../dto/types/create/swabHistoryByTank"
+import { SwabsResponses } from "../dto/types/create/swabsResponses"
+import { validateTanks } from "../dto/types/create/validateTanks"
 import SwabRepository from "../repository/swab.respository"
 
 
@@ -19,6 +19,7 @@ class CreateSwab {
     async execute(data: CreateSwabType, payload: MyJwtPayload): Promise<CreateResponses> {
         //Método para validação do tanks retorna tanks invalidos também
         const validTanks: validateTanks = await this.validateTanks(data, payload)
+
 
         if (!validTanks.validTanks.length) {
             return {
@@ -31,24 +32,16 @@ class CreateSwab {
         //Busca os 3 ultimos swabs realizados e retorna tanto o swab quanto seu relacionamento com swabCheck retorno ex: c2:[swab{},swab{}]
         const historySwabs: SwabHistoryByTank = await this.historySwabs(validTanks, payload)
 
-        //Buscar a torneira do tank
+        //verifica  a utlima torneira do swab anterior
         const faucetCode = verifyFaucetCode(historySwabs)
 
         // Decidi próximo tipo VISUAL ou ATP regra de negocio e separa swabs que estão em estado pendentes
         const nextSwab = verifyNextSwab(historySwabs)
 
-        if (!nextSwab.result.length) {
-            return {
-                invalidTanks: validTanks.invalidTanks,
-                pending: nextSwab.pending,
-                swabs: []
-            }
-        }
         //Cria o swab contento info definidas como swabs validos dentro de um array[]
         //Defini 
         return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending, faucetCode)
     }
-
 
     private async createSwab(tanksValid: validateTanks, infoSwab: Record<string, SwabCheckType>, peddingSwabs: PendingSwab[], faucetCode: Record<string, string>): Promise<CreateResponses> {
         const swabsCreated = []

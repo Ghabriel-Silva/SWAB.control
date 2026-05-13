@@ -1,4 +1,4 @@
-import { SwabHistoryByTank } from "../../swab/dto/types/swabHistoryByTank";
+import { SwabHistoryByTank } from "../../swab/dto/types/create/swabHistoryByTank";
 
 
 export function verifyFaucetCode(historySwabs: SwabHistoryByTank) {

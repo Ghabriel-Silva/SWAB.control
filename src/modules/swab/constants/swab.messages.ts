@@ -1,6 +1,6 @@
 export const SWAB_MESSAGES = {
     CREATE: {
-        SUCCESS: 'Swab criado com sucesso',
+        SUCCESS: 'Processamento concluído',
         NO_SWABS_CREATED: 'Nenhum swab foi criado',
 
         PENDING_SWAB: (tank: string) =>

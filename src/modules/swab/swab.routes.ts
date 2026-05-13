@@ -24,9 +24,10 @@ swabRoutes.post('/', //Create swab
     asyncHandler(swabController.create)
 )
 
-swabRoutes.put('/:id/check',
+swabRoutes.patch('/:id/check',
     authenticateMiddleware,
-    validateData(updateSwabSchema, 'body'),
-    authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB)
+    // validateData(updateSwabSchema, 'body'),
+    authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
+    asyncHandler(swabController.update)
 )
 export default swabRoutes

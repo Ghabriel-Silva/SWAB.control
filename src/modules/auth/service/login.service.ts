@@ -41,7 +41,7 @@ class LoginService {
 
         const token: string = this.tokenService.generateToken(payloud)
         return {
-            user: user.name,
+            user: user.role,
             token: token
         }
     }

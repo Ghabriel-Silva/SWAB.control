@@ -20,6 +20,11 @@ class SwabController {
             )
         )
     }
+    update = async (req: Request, res: Response) => {
+        return res.json(
+            successResponse(null, 'update aqui')
+        )
+    }
 }
 
 export default SwabController

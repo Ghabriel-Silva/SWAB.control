@@ -1,5 +1,5 @@
-import { SwabCheckType } from "../../../SwabCheck/domain/swabCheck.enum"
-import { SwabCheckResult } from "../../../SwabCheck/domain/swabResult.enum"
+import { SwabCheckType } from "../../../../SwabCheck/domain/swabCheck.enum"
+import { SwabCheckResult } from "../../../../SwabCheck/domain/swabResult.enum"
 
 export interface SwabsResponses {
     id: string,
