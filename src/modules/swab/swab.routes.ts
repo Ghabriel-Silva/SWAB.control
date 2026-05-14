@@ -26,7 +26,7 @@ swabRoutes.post('/', //Create swab
 
 swabRoutes.patch('/:id/check',
     authenticateMiddleware,
-    // validateData(updateSwabSchema, 'body'),
+    validateData(updateSwabSchema, 'body'),
     authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
     asyncHandler(swabController.update)
 )
