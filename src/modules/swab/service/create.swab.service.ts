@@ -20,35 +20,31 @@ class CreateSwab {
         //Método para validação do tanks retorna tanks invalidos também
         const validTanks: validateTanks = await this.validateTanks(data, payload)
 
-
         if (!validTanks.validTanks.length) {
             return {
                 invalidTanks: validTanks.invalidTanks,
                 pending: [],
-                swabs: []
+                swabsCreate: []
             }
         }
 
         //Busca os 3 ultimos swabs realizados e retorna tanto o swab quanto seu relacionamento com swabCheck retorno ex: c2:[swab{},swab{}]
         const historySwabs: SwabHistoryByTank = await this.historySwabs(validTanks, payload)
 
-        //verifica  a utlima torneira do swab anterior
-        const faucetCode = verifyFaucetCode(historySwabs)
-
         // Decidi próximo tipo VISUAL ou ATP regra de negocio e separa swabs que estão em estado pendentes
         const nextSwab = verifyNextSwab(historySwabs)
 
         //Cria o swab contento info definidas como swabs validos dentro de um array[]
         //Defini 
-        return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending, faucetCode)
+        return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending)
     }
 
-    private async createSwab(tanksValid: validateTanks, infoSwab: Record<string, SwabCheckType>, peddingSwabs: PendingSwab[], faucetCode: Record<string, string>): Promise<CreateResponses> {
+    private async createSwab(tanksValid: validateTanks, infoSwab: Record<string, SwabCheckType>, peddingSwabs: PendingSwab[]): Promise<CreateResponses> {
         const swabsCreated = []
         for (const tank of tanksValid.validTanks) {
 
             //pegando os swabs validos e verificando se eles tem o result pendding, a função validTanks valida apenas se os tanks existem 
-            const swabsPendings = peddingSwabs.map(s => s.tank)
+            const swabsPendings: string[] = peddingSwabs.map(s => s.tank)
             if (swabsPendings.includes(tank.name)) {
                 continue
             }
@@ -60,28 +56,19 @@ class CreateSwab {
             )
             swabsCreated.push(swab)
         }
-
+        //aqui retorno apenas o nome e o id do tank para mensagem de create 
         const swabsResponses: SwabsResponses[] = swabsCreated.map(swab =>
-        ({
-            id: swab.id,
-            tank: {
-                id: swab.tank.id,
-                name: swab.tank.name
-            },
-            lastFaucet: faucetCode[swab.tank.name],
-            check: {
-                id: swab.check.id,
-                type: swab.check.type,
-                result: swab.check.result
-            },
-            createdAt: swab.createdAt,
-            updatedAt: swab.updatedAt
-        }))
+        (
+            {
+                swabId: swab.id,
+                tankName: swab.tank.name
+            }
+        ))
 
         return {
             invalidTanks: tanksValid.invalidTanks,
             pending: peddingSwabs,
-            swabs: swabsResponses
+            swabsCreate: swabsResponses
         }
     }
 

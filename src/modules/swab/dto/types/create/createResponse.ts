@@ -4,5 +4,5 @@ import { SwabsResponses } from "./swabsResponses";
 export interface CreateResponses {
     invalidTanks: string[],
     pending: PendingSwab[],
-    swabs: SwabsResponses[]
+    swabsCreate: SwabsResponses[]
 }

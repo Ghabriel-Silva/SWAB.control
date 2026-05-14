@@ -1,5 +1,6 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
 import { CreateSwabType } from "../dto/schemas/create.swab.schema"
+import { UpdateSwabType } from "../dto/schemas/update.swab.schema"
 import CreateSwab from "./create.swab.service"
 
 
@@ -8,6 +9,10 @@ class SwabService {
 
     async create(data:CreateSwabType, payloud:MyJwtPayload){
         return await this.swabCreate.execute(data, payloud)
+    }
+
+    async update(swabId:string, payload:MyJwtPayload, data:UpdateSwabType){
+        
     }
 }
 
