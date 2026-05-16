@@ -1,6 +1,12 @@
 import * as yup from "yup"
-import { SwabCheckType } from "../../../SwabCheck/domain/swabCheck.enum"
-import { SwabCheckResult } from "../../../SwabCheck/domain/swabResult.enum"
+import { SwabCheckType } from "../../domain/swabCheck.enum"
+import { SwabCheckResult } from "../../domain/swabResult.enum"
+import { removeBlankSpace } from "../../../../shared/helpers/removeBlankSpace"
+
+const ATP_REQUIRED_TYPES = [
+    SwabCheckType.ATP,
+    SwabCheckType.MICRO
+]
 
 export const updateSwabSchema = yup.object({
     operatorId: yup
@@ -27,6 +33,7 @@ export const updateSwabSchema = yup.object({
         .number()
         .typeError('O resultado ATP deve ser informado com um valor numérico')
         .integer('O resultado ATP deve ser um número inteiro')
+        .min(0, 'O valor ATP não pode ser negativo')
         .transform((_, v) => {
             if (v === '' || v === undefined || v === null) {
                 return null
@@ -34,31 +41,30 @@ export const updateSwabSchema = yup.object({
             return Number(v)
         })
         .when('performedType', ([performedType], schema) => {
-            if (performedType === SwabCheckType.ATP || performedType === SwabCheckType.MICRO) {
+            if (ATP_REQUIRED_TYPES.includes(performedType)) {
                 return schema.required('É obrigatório informar o resultado ATP para swabs ATP e MICRO')
             }
             return schema.nullable()
         }),
+        // .when('performedType', {
+        //     is: (value: SwabCheckResult) =>
+        //         value === SwabCheckResult.APPROVED && Number(value) > 30,
+        //     then: (schema) =>
+        //         schema.required('O Swab não pode ser aprovado com o valor do ATP acima de 30 RLU') ,
+        // }),
 
     faucetCode: yup
         .string()
+        .transform(removeBlankSpace)
         .max(50, 'O código da torneira deve conter no máximo 50 caracteres')
         .required('É obrigatório informar o código da torneira utilizada'),
 
     batch: yup
         .string()
         .max(20, 'O lote informado deve conter no máximo 20 caracteres')
-        .transform((_, v) => {
-            if (typeof v !== 'string') {
-                return v
-            }
-
-            const trimmed = v.trim()
-
-            return trimmed === '' ? null : trimmed
-        })
+        .transform(removeBlankSpace)
         .when('performedType', ([performedType], schema) => {
-            if (performedType === SwabCheckType.ATP || performedType === SwabCheckType.MICRO) {
+            if (ATP_REQUIRED_TYPES.includes(performedType)) {
                 return schema.required('É obrigatório informar o lote utilizado na análise ATP')
             }
             return schema.nullable()
@@ -67,13 +73,26 @@ export const updateSwabSchema = yup.object({
     validatedAt: yup
         .date()
         .typeError('A data informada para realização do swab é inválida')
-        .required('É obrigatório informar a data de realização do swab'),
+        .notRequired()
+        .when('result', {
+            is: (value: SwabCheckResult) =>
+                value === SwabCheckResult.APPROVED
+            ,
+            then: (schema) =>
+                schema.required('É obrigatório informar a data de realização do swab quando o Swab estiver aprovado')
+        }),
 
     observation: yup
         .string()
         .max(500, 'O campo observações deve conter no máximo 500 caracteres')
         .notRequired()
-
+        .transform(removeBlankSpace)
+        .when('result', {
+            is: (value: SwabCheckResult) =>
+                value === SwabCheckResult.REPROVED,
+            then: (schema) =>
+                schema.required('Oberservação é obrigatório quando o swab for reprovado')
+        })
 })
 
 export type UpdateSwabType = yup.InferType<typeof updateSwabSchema>

@@ -1,7 +1,7 @@
 import { Swab } from "../../../shared/database/entities/Swab";
-import { SWAB_MESSAGES } from "../../swab/constants/swab.messages";
-import { PendingSwab } from "../../swab/dto/types/create/penddingSwabs";
-import { SwabHistoryByTank } from "../../swab/dto/types/create/swabHistoryByTank";
+import { SWAB_MESSAGES } from "../constants/swab.messages";
+import { PendingSwab } from "../dto/types/create/penddingSwabs";
+import { SwabHistoryByTank } from "../dto/types/create/swabHistoryByTank";
 import { SwabCheckType } from "./swabCheck.enum";
 import { SwabCheckResult } from "./swabResult.enum";
 
@@ -17,7 +17,7 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
             continue
         }
         const lastSwab = tankSwab[0]
-    
+
 
         if (!lastSwab.check) {
             pending.push({
@@ -56,8 +56,7 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         const allAprovet: boolean = requiredSwabs.every(
             s => s.check.result === SwabCheckResult.APPROVED
         )
-
-        //aqui acontece a magica, no caso se  dentro do array todos terem o resultado aprovado e o tamanho desse array for igual a frequencia defina no tank significa que o proximo swab sera ATP, se n corresponder a essa condição o swab sera visual
+        //aqui  no caso se  dentro do array todos terem o resultado aprovados e o tamanho desse array for igual a frequencia defina no tank significa que o proximo swab sera ATP, se n corresponder a essa condição o swab sera visual
         if (allAprovet && requiredSwabs.length === frequencyATP) {
             result[tankName] = SwabCheckType.ATP
             continue

@@ -1,20 +1,18 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
 import { Swab } from "../../../shared/database/entities/Swab"
 import { Tank } from "../../../shared/database/entities/Tank"
-import { SwabCheckType } from "../../SwabCheck/domain/swabCheck.enum"
-import { verifyFaucetCode } from "../../SwabCheck/domain/verifyFaucetCode"
-import { verifyNextSwab } from "../../SwabCheck/domain/verifyNextSwab"
+import { SwabCheckType } from "../domain/swabCheck.enum"
+import { verifyNextSwab } from "../domain/verifyNextSwab"
 import { CreateSwabType } from "../dto/schemas/create.swab.schema"
 import { CreateResponses } from "../dto/types/create/createResponse"
 import { PendingSwab } from "../dto/types/create/penddingSwabs"
 import { SwabHistoryByTank } from "../dto/types/create/swabHistoryByTank"
 import { SwabsResponses } from "../dto/types/create/swabsResponses"
 import { validateTanks } from "../dto/types/create/validateTanks"
-import SwabRepository from "../repository/swab.respository"
-
+import SwabCreateRepository from "../repository/create.swab.respository"
 
 class CreateSwab {
-    constructor(private swabRepository: SwabRepository) { }
+    constructor(private swabRepository: SwabCreateRepository) { }
 
     async execute(data: CreateSwabType, payload: MyJwtPayload): Promise<CreateResponses> {
         //Método para validação do tanks retorna tanks invalidos também
@@ -27,7 +25,6 @@ class CreateSwab {
                 swabsCreate: []
             }
         }
-
         //Busca os 3 ultimos swabs realizados e retorna tanto o swab quanto seu relacionamento com swabCheck retorno ex: c2:[swab{},swab{}]
         const historySwabs: SwabHistoryByTank = await this.historySwabs(validTanks, payload)
 
@@ -42,7 +39,6 @@ class CreateSwab {
     private async createSwab(tanksValid: validateTanks, infoSwab: Record<string, SwabCheckType>, peddingSwabs: PendingSwab[]): Promise<CreateResponses> {
         const swabsCreated = []
         for (const tank of tanksValid.validTanks) {
-
             //pegando os swabs validos e verificando se eles tem o result pendding, a função validTanks valida apenas se os tanks existem 
             const swabsPendings: string[] = peddingSwabs.map(s => s.tank)
             if (swabsPendings.includes(tank.name)) {
@@ -73,7 +69,6 @@ class CreateSwab {
     }
 
     private async validateTanks(data: CreateSwabType, payloud: MyJwtPayload): Promise<validateTanks> {
-
         const foundTanks: Tank[] = await this.swabRepository.existTank(
             data.tank.map(i => i.toUpperCase()),
             payloud

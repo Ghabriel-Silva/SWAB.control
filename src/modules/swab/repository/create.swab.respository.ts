@@ -3,11 +3,11 @@ import { Swab } from "../../../shared/database/entities/Swab";
 import { AppDataSource } from "../../../shared/database/data-source";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { Tank } from "../../../shared/database/entities/Tank";
-import { SwabCheckType } from "../../SwabCheck/domain/swabCheck.enum";
-import { SwabCheckResult } from "../../SwabCheck/domain/swabResult.enum";
+import { SwabCheckType } from "../domain/swabCheck.enum";
+import { SwabCheckResult } from "../domain/swabResult.enum";
 
 
-class SwabRepository {
+class SwabCreateRepository {
     private swabRepository: Repository<Swab>
     private tankRepository: Repository<Tank>
 
@@ -32,10 +32,10 @@ class SwabRepository {
         return res
     }
 
-    existTank = async (tanks: string[], payloud: MyJwtPayload):Promise<Tank[]>  => {
+    existTank = async (tanks: string[], payloud: MyJwtPayload): Promise<Tank[]> => {
         return await this.tankRepository.find({
             where: {
-                name:In(tanks),
+                name: In(tanks),
                 company: {
                     id: payloud.companyId
                 },
@@ -43,7 +43,7 @@ class SwabRepository {
         })
     }
     historySwab = async (tanks: string, payloud: MyJwtPayload, frequencyATP: number) => {
-        const res =  await this.swabRepository.find({
+        const res = await this.swabRepository.find({
             where: {
                 tank: {
                     id: tanks,
@@ -66,4 +66,4 @@ class SwabRepository {
     }
 }
 
-export default SwabRepository
+export default SwabCreateRepository

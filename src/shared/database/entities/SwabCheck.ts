@@ -7,8 +7,8 @@ import {
     OneToOne
 } from 'typeorm'
 import { Swab } from './Swab'
-import { SwabCheckType } from '../../../modules/SwabCheck/domain/swabCheck.enum';
-import { SwabCheckResult } from '../../../modules/SwabCheck/domain/swabResult.enum';
+import { SwabCheckType } from '../../../modules/swab/domain/swabCheck.enum';
+import { SwabCheckResult } from '../../../modules/swab/domain/swabResult.enum';
 
 
 @Entity('swab_checks')
@@ -36,15 +36,15 @@ export class SwabCheck {
     @Column({ nullable: true })
     validatedAt: Date
 
-    @Column({ nullable: true})
+    @Column({ nullable: true })
     valueAtp: number
 
-    @Column({ nullable: true, length:20})
+    @Column({ nullable: true, length: 20 })
     batch: string;
 
-    @Column({nullable:true, length:500})
-    observation:string
-    
+    @Column({ nullable: true, length: 500 })
+    observation: string
+
     @CreateDateColumn()
     createdAt: Date;
 }

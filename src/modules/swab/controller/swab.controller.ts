@@ -32,7 +32,7 @@ class SwabController {
         const result = await this.swabService.update(id, payload, data)
 
         return res.json(
-            successResponse(null, 'update aqui')
+            successResponse(result, 'update aqui')
         )
 
     }
