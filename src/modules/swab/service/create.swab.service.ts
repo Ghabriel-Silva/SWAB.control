@@ -33,10 +33,10 @@ class CreateSwab {
 
         //Cria o swab contento info definidas como swabs validos dentro de um array[]
         //Defini 
-        return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending)
+        return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending, payload)
     }
 
-    private async createSwab(tanksValid: validateTanks, infoSwab: Record<string, SwabCheckType>, peddingSwabs: PendingSwab[]): Promise<CreateResponses> {
+    private async createSwab(tanksValid: validateTanks, infoSwab: Record<string, SwabCheckType>, peddingSwabs: PendingSwab[], payload: MyJwtPayload): Promise<CreateResponses> {
         const swabsCreated = []
         for (const tank of tanksValid.validTanks) {
             //pegando os swabs validos e verificando se eles tem o result pendding, a função validTanks valida apenas se os tanks existem 
@@ -48,7 +48,9 @@ class CreateSwab {
             const swabType = infoSwab[tank.name]
             const swab = await this.swabRepository.create(
                 tank,
-                swabType
+                swabType,
+                payload.companyId
+
             )
             swabsCreated.push(swab)
         }

@@ -45,6 +45,10 @@ export class SwabCheck {
     @Column({ nullable: true, length: 500 })
     observation: string
 
+    
+    @Column({ nullable: true, length: 250 })
+    sameFaucetJustification: string
+
     @CreateDateColumn()
     createdAt: Date;
 }

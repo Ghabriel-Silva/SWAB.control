@@ -8,28 +8,38 @@ class UpdateSwab {
     constructor(private swabUpdateRepository: SwabUpdateRepository) { }
 
     execute = async (swabId: string, payload: MyJwtPayload, data: UpdateSwabType) => {
-        /**
-         * peratorId
-         * performedType valido no yup
-         *  result  // valido no yup
-         * valueAtp //Opcitional apenas para atp e micro  se não null
-         *  faucetCode  //valido no yup, é obrigatorio 
-         *  batch //Optional apenas para atp e micro
-         *  validatedAt //required quando o result for aprovado
-         * 
-         *   observation //Obrigatorio quando o tank for reprovado 
-         */
+        const swabExiste = await this.swabUpdateRepository.swabexiste(swabId, payload.companyId)
 
-        //validar se o id do operador existe
+        if (!swabExiste) {
+            throw new AppError(
+                404,
+                'Swab não encontrado'
+            )
+        }
+
         const operatorExiste = await this.swabUpdateRepository.operatorExiste(data.operatorId, payload.companyId)
 
-        if(!operatorExiste){
+        if (!operatorExiste) {
             throw new AppError(404, 'Operador não encontrado')
         }
+
+        const lastfaucet = await this.swabUpdateRepository.lastfacet(swabExiste.tank.id, payload.companyId, swabId)
+
+        const isSameFaucet: boolean = lastfaucet?.faucetCode?.toUpperCase() === data.faucetCode.toUpperCase()
         
 
+        if (isSameFaucet && !data.sameFaucetJustification) {
+            throw new AppError(
+                400,
+                'Informe uma justificativa para reutilizar a mesma torneira.'
+            )
+        }
+       
+
+        //Criar objeto para mandar para autlizar as infos do swab ja existente 
+
+
         return operatorExiste
-        //
     }
 }
 

@@ -4,6 +4,7 @@ import { Laboratory } from "./Laboratory";
 import { OperatorPosition } from "./OperatorPosition";
 import { Operator } from "./Operator";
 import { Tank } from "./Tank";
+import { Swab } from "./Swab";
 
 @Entity('company')
 export class Company {
@@ -29,6 +30,9 @@ export class Company {
     updatedAt: Date
 
     //relações
+    @OneToMany(() => Swab, swab => swab.company)
+    swabs: Swab[]
+
     @OneToMany(() => User, user => user.company)
     users: User[]
 
@@ -41,6 +45,8 @@ export class Company {
     //relation Operator
     @OneToMany(() => Operator, operator => operator.company)
     operators: Operator[]
+
+
 
     @OneToMany(() => Tank, tank => tank.company)
     tanks: Tank[]

@@ -18,10 +18,14 @@ class SwabCreateRepository {
 
     create = async (
         tank: Tank,
-        type: SwabCheckType
+        type: SwabCheckType,
+        companyId: string
     ) => {
         const swab = this.swabRepository.create({
             tank,
+            company: {
+                id: companyId
+            },
             check: {
                 type: type,
                 result: SwabCheckResult.PENDING,

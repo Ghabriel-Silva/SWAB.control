@@ -42,16 +42,28 @@ export const updateSwabSchema = yup.object({
         })
         .when('performedType', ([performedType], schema) => {
             if (ATP_REQUIRED_TYPES.includes(performedType)) {
-                return schema.required('É obrigatório informar o resultado ATP para swabs ATP e MICRO')
+                return schema.required(
+                    'É obrigatório informar o resultado ATP para swabs ATP e MICRO'
+                )
             }
+
             return schema.nullable()
-        }),
-        // .when('performedType', {
-        //     is: (value: SwabCheckResult) =>
-        //         value === SwabCheckResult.APPROVED && Number(value) > 30,
-        //     then: (schema) =>
-        //         schema.required('O Swab não pode ser aprovado com o valor do ATP acima de 30 RLU') ,
-        // }),
+        })
+        .test(
+            'approved-atp-limit',
+            'O Swab não pode ser aprovado com ATP acima de 30 RLU',
+            function (value) {
+                const { result } = this.parent
+                if (
+                    result === SwabCheckResult.APPROVED
+                    && value != null && value > 30
+
+                ) {
+                    return false
+                }
+                return true
+            }
+        ),
 
     faucetCode: yup
         .string()
@@ -92,7 +104,12 @@ export const updateSwabSchema = yup.object({
                 value === SwabCheckResult.REPROVED,
             then: (schema) =>
                 schema.required('Oberservação é obrigatório quando o swab for reprovado')
-        })
+        }),
+    sameFaucetJustification: yup
+        .string()
+        .max(250, 'O maximo de caracteres é 250')
+        .transform(removeBlankSpace)
+        .nullable()
 })
 
 export type UpdateSwabType = yup.InferType<typeof updateSwabSchema>
