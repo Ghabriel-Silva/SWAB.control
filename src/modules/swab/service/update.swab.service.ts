@@ -1,4 +1,7 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
+import { Operator } from "../../../shared/database/entities/Operator";
+import { Swab } from "../../../shared/database/entities/Swab";
+import { SwabCheck } from "../../../shared/database/entities/SwabCheck";
 import AppError from "../../../shared/errors/AppError";
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
 import SwabCreateRepository from "../repository/create.swab.respository";
@@ -26,7 +29,7 @@ class UpdateSwab {
         const lastfaucet = await this.swabUpdateRepository.lastfacet(swabExiste.tank.id, payload.companyId, swabId)
 
         const isSameFaucet: boolean = lastfaucet?.faucetCode?.toUpperCase() === data.faucetCode.toUpperCase()
-        
+
 
         if (isSameFaucet && !data.sameFaucetJustification) {
             throw new AppError(
@@ -34,12 +37,46 @@ class UpdateSwab {
                 'Informe uma justificativa para reutilizar a mesma torneira.'
             )
         }
-       
 
-        //Criar objeto para mandar para autlizar as infos do swab ja existente 
+        const dataToUpdate: Partial<Swab> = {
+            ...(data.faucetCode && {
+                faucetCode: data.faucetCode
+            }),
+
+            ...(data.operatorId && {
+                operator: {
+                    id: data.operatorId
+                } as Operator
+            }),
+
+            check: {
+                ...(data.performedType && { type: data.performedType }),
+                ...(data.result && { result: data.result }),
+                ...(data.validatedAt && { validatedAt: data.validatedAt }),
+                ...(data.valueAtp && { valueAtp: data.valueAtp }),
+                ...(data.batch && { batch: data.batch }),
+                ...(data.observation && { observation: data.observation }),
+                ...(data.sameFaucetJustification && {
+                    sameFaucetJustification: data.sameFaucetJustification
+                })
+            } as SwabCheck
+        }
+
+        const updateSwab = await this.swabUpdateRepository.updateSwab(dataToUpdate, swabId, payload.companyId)
+
+        // if (!updateSwab) {
+        //     throw new AppError(
+        //         404,
+        //         'Não foi possivel atualizar o swab'
+        //     )
+        // }
+
+        //ver em projetos anteriores como atualiza uzando o type orm 
+        //validar com um swab que tem historico se os metos estao funcionando 
+        //Criar objeto para mandar para autlizar as infos do swab ja existente  
 
 
-        return operatorExiste
+        return updateSwab
     }
 }
 

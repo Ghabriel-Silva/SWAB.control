@@ -4,7 +4,8 @@ import {
     ManyToOne,
     Column,
     CreateDateColumn,
-    OneToOne
+    OneToOne,
+    JoinColumn
 } from 'typeorm'
 import { Swab } from './Swab'
 import { SwabCheckType } from '../../../modules/swab/domain/swabCheck.enum';
@@ -19,6 +20,7 @@ export class SwabCheck {
     @OneToOne(() => Swab, swab => swab.check, {
         onDelete: 'CASCADE'
     })
+    @JoinColumn({ name: 'swabId' })
     swab: Swab
 
     @Column({
@@ -45,7 +47,7 @@ export class SwabCheck {
     @Column({ nullable: true, length: 500 })
     observation: string
 
-    
+
     @Column({ nullable: true, length: 250 })
     sameFaucetJustification: string
 
