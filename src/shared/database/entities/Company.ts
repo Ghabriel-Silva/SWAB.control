@@ -23,6 +23,9 @@ export class Company {
     @Column('boolean', { default: true })
     isActive: boolean
 
+    @Column('int', { nullable: true })
+    defaultAtpLimit: number
+
     @CreateDateColumn()
     createdAt: Date
 

@@ -48,22 +48,7 @@ export const updateSwabSchema = yup.object({
             }
 
             return schema.nullable()
-        })
-        .test(
-            'approved-atp-limit',
-            'O Swab não pode ser aprovado com ATP acima de 30 RLU',
-            function (value) {
-                const { result } = this.parent
-                if (
-                    result === SwabCheckResult.APPROVED
-                    && value != null && value > 30
-
-                ) {
-                    return false
-                }
-                return true
-            }
-        ),
+        }),
 
     faucetCode: yup
         .string()

@@ -11,6 +11,7 @@ class UpdateSwab {
     constructor(private swabUpdateRepository: SwabUpdateRepository) { }
 
     execute = async (swabId: string, payload: MyJwtPayload, data: UpdateSwabType) => {
+        //validação se o swab existe se não existir nem continua
         const swabExiste = await this.swabUpdateRepository.swabexiste(swabId, payload.companyId)
 
         if (!swabExiste) {
@@ -20,16 +21,17 @@ class UpdateSwab {
             )
         }
 
+        //Validando se operador existe, validação de segurança 
         const operatorExiste = await this.swabUpdateRepository.operatorExiste(data.operatorId, payload.companyId)
 
         if (!operatorExiste) {
             throw new AppError(404, 'Operador não encontrado')
         }
 
+        //Validando se a torneira é igual a ultima cadastrada se for obrigatoriamente ter uma justificativa
         const lastfaucet = await this.swabUpdateRepository.lastfacet(swabExiste.tank.id, payload.companyId, swabId)
 
         const isSameFaucet: boolean = lastfaucet?.faucetCode?.toUpperCase() === data.faucetCode.toUpperCase()
-
 
         if (isSameFaucet && !data.sameFaucetJustification) {
             throw new AppError(
@@ -38,20 +40,30 @@ class UpdateSwab {
             )
         }
 
+        //validar se o atp que veio esta dentro do valor de atp limit
+        const atpLimit = swabExiste.tank.atpLimit
+            ?? swabExiste.company.defaultAtpLimit
+
+        if (
+            atpLimit != null &&
+            data.valueAtp != null &&
+            data.valueAtp > atpLimit &&
+            !data.observation?.trim()
+        ) {
+            throw new AppError(
+                400,
+                'Observação é obrigatória quando o ATP é maior que o limite definido'
+            )
+        }
+
         const dataToUpdate: Partial<Swab> = {
-            ...(data.faucetCode && {
-                faucetCode: data.faucetCode
-            }),
-
-            ...(data.operatorId && {
-                operator: {
-                    id: data.operatorId
-                } as Operator
-            }),
-
+            faucetCode: data.faucetCode,
+            operator: {
+                id: data.operatorId
+            } as Operator,
             check: {
-                ...(data.performedType && { type: data.performedType }),
-                ...(data.result && { result: data.result }),
+                type: data.performedType,
+                result: data.result,
                 ...(data.validatedAt && { validatedAt: data.validatedAt }),
                 ...(data.valueAtp && { valueAtp: data.valueAtp }),
                 ...(data.batch && { batch: data.batch }),
@@ -62,21 +74,23 @@ class UpdateSwab {
             } as SwabCheck
         }
 
-        const updateSwab = await this.swabUpdateRepository.updateSwab(dataToUpdate, swabId, payload.companyId)
+        const updateSwab: boolean = await this.swabUpdateRepository.updateSwab(dataToUpdate, swabId, payload.companyId)
 
-        // if (!updateSwab) {
-        //     throw new AppError(
-        //         404,
-        //         'Não foi possivel atualizar o swab'
-        //     )
-        // }
-
-        //ver em projetos anteriores como atualiza uzando o type orm 
-        //validar com um swab que tem historico se os metos estao funcionando 
-        //Criar objeto para mandar para autlizar as infos do swab ja existente  
+        if (!updateSwab) {
+            throw new AppError(
+                404,
+                `Não foi possivel atualizar o swab do tank ${swabExiste.tank.name}`
+            )
+        }
+        //refatorar em funções menores 
+        //criar loteInterno no canmpo swab
 
 
-        return updateSwab
+        return {
+            tankName: swabExiste.tank.name,
+            swabId: swabExiste.id,
+            internalCode: swabExiste.internalCode ? swabExiste.internalCode : ""
+        }
     }
 }
 

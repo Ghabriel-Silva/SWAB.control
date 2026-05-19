@@ -21,17 +21,19 @@ class SwabUpdateRepository {
         data: Partial<Swab>,
         swabId: string,
         companyId: string
-    ) => {
+    ): Promise<boolean> => {
 
         const { check, ...swabData } = data
 
-        await this.swabUpdateRepository
+        const swabR = await this.swabUpdateRepository
             .createQueryBuilder()
             .update(Swab)
             .set(swabData)
             .where("id = :swabId", { swabId })
             .andWhere("companyId = :companyId", { companyId })
             .execute()
+
+        if (!swabR.affected) return false
 
         if (check) {
             await this.swabCheckRepository
@@ -41,6 +43,8 @@ class SwabUpdateRepository {
                 .where("swabId = :swabId", { swabId })
                 .execute()
         }
+
+        return true
     }
 
     swabexiste = async (id: string, companyId: string) => {
@@ -53,6 +57,7 @@ class SwabUpdateRepository {
             },
             relations: {
                 tank: true,
+                company: true
             }
         })
     }

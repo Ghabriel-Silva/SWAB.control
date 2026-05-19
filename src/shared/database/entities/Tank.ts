@@ -16,6 +16,9 @@ export class Tank {
     @Column('varchar', { length: 600 })
     description: string
 
+    @Column('int', { nullable: true })
+    atpLimit: number 
+
     @CreateDateColumn()
     createdAt: Date
 

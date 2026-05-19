@@ -16,6 +16,7 @@ import { Tank } from "./entities/Tank"
 import {CreateCompany1776092268839 } from "./migrations/1776092268839-CreateCompany"
 import {CreatedUser1776172843611} from "./migrations/1776172843611-CreatedUser"
 import {CreatColumns1776289762426} from "./migrations/1776289762426-CreatColumns"
+import { SwabSequence } from "./entities/SwabSequence"
 
 
 export const AppDataSource = new DataSource({
@@ -27,7 +28,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
-    entities: [Company, User, Laboratory, Operator, OperatorPosition, Swab, SwabCheck, Tank],
+    entities: [Company, User, Laboratory, Operator, OperatorPosition, Swab, SwabCheck, Tank, SwabSequence],
     migrations: [
         CreateCompany1776092268839, //Cria Company
         CreatedUser1776172843611, //Cria usuário e relations com company

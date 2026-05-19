@@ -9,6 +9,9 @@ export class Swab {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    @Column('varchar', { nullable: true, unique: true})
+    internalCode: string
+
     @ManyToOne(() => Operator, operator => operator.swabs)
     operator: Operator;
 
@@ -21,7 +24,6 @@ export class Swab {
     @OneToOne(() => SwabCheck, check => check.swab, {
         cascade: true
     })
-    @JoinColumn({ name: 'swabCheckId' })
     check: SwabCheck
 
     @ManyToOne(() => Company, company => company.swabs)
