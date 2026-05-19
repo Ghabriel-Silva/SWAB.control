@@ -11,12 +11,9 @@ import { SwabSequence } from "../../../shared/database/entities/SwabSequence";
 class SwabCreateRepository {
     private swabRepository: Repository<Swab>
     private tankRepository: Repository<Tank>
-    private swabSequence: Repository<SwabSequence>
-
     constructor() {
         this.swabRepository = AppDataSource.getRepository(Swab)
         this.tankRepository = AppDataSource.getRepository(Tank)
-        this.swabSequence = AppDataSource.getRepository(SwabSequence)
     }
 
     create = async (
@@ -41,44 +38,6 @@ class SwabCreateRepository {
         return res
     }
 
-    async ensure(companyId: string, prefix: string) {
-        try {
-            const existing = await this.swabSequence.findOne({
-                where: { companyId, prefix }
-            })
-
-            if (existing) {
-                return
-            }
-
-            const newSequence = this.swabSequence.create({
-                companyId,
-                prefix,
-                lastNumber: 0
-            })
-
-            await this.swabSequence.save(newSequence)
-
-        } catch (error) {
-            console.log(" ensure error", error)
-        }
-    }
-
-    async nextSequence(companyId: string, prefix: string): Promise<number> {
-        await this.swabSequence
-            .createQueryBuilder()
-            .update(SwabSequence)
-            .set({ lastNumber: () => "lastNumber + 1" })
-            .where("companyId = :companyId AND prefix = :prefix", { companyId, prefix })
-            .execute();
-
-        const sequence = await this.swabSequence.findOne({
-            where: { companyId, prefix }
-        })
-
-        return sequence!.lastNumber;
-    }
-
     existTank = async (tanks: string[], payloud: MyJwtPayload): Promise<Tank[]> => {
         return await this.tankRepository.find({
             where: {
@@ -89,6 +48,49 @@ class SwabCreateRepository {
             },
         })
     }
+
+    nextSwabSequence = async (companyId: string, prefix: string) => {
+        const queryRunner = AppDataSource.createQueryRunner()
+        await queryRunner.connect()
+        await queryRunner.startTransaction()
+
+        try {
+            const existing = await queryRunner.manager.findOne(SwabSequence, {
+                where: { companyId, prefix }
+            })
+
+            if (!existing) {
+                const newSequence = queryRunner.manager.create(SwabSequence, {
+                    companyId,
+                    prefix,
+                    lastNumber: 0
+                })
+                await queryRunner.manager.save(newSequence)
+            }
+
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(SwabSequence)
+                .set({ lastNumber: () => "lastNumber + 1" })
+                .where("companyId = :companyId AND prefix = :prefix", { companyId, prefix })
+                .execute()
+
+            const sequence = await queryRunner.manager.findOne(SwabSequence, {
+                where: { companyId, prefix }
+            })
+
+            await queryRunner.commitTransaction()
+
+            return sequence!.lastNumber
+
+        } catch (err) {
+            await queryRunner.rollbackTransaction()
+            throw err
+        }finally{
+            await queryRunner.release()
+        }
+    }
+
     historySwab = async (tanks: string, payloud: MyJwtPayload, frequencyATP: number) => {
         const res = await this.swabRepository.find({
             where: {

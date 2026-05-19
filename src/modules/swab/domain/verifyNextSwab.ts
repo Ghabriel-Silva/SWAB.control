@@ -22,6 +22,7 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         if (!lastSwab.check) {
             pending.push({
                 tank: tankName,
+                swabId: lastSwab.id,
                 message: SWAB_MESSAGES.CREATE.PENDING_CHECK(tankName) //O swab orbigatoriamente precisar ter o check, pois funciona como um historico 
             })
             continue
@@ -32,6 +33,7 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
         if (lastResultSwab === SwabCheckResult.PENDING) {
             pending.push({
                 tank: tankName,
+                swabId: lastSwab.id,
                 message: SWAB_MESSAGES.CREATE.PENDING_SWAB(tankName)
             })
             continue

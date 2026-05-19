@@ -30,11 +30,10 @@ class CreateSwab {
         //Busca os 3 ultimos swabs realizados e retorna tanto o swab quanto seu relacionamento com swabCheck retorno ex: c2:[swab{},swab{}]
         const historySwabs: SwabHistoryByTank = await this.historySwabs(validTanks, payload)
 
-        // Decidi próximo tipo VISUAL ou ATP regra de negocio e separa swabs que estão em estado pendentes
+        // Decidi próximo tipo VISUAL ou ATP conforme a regra de negócio definida e separa swabs que estão em estado pendentes
         const nextSwab = verifyNextSwab(historySwabs)
 
-        //Cria o swab contento info definidas como swabs validos dentro de um array[]
-        //Defini 
+        //Cria e retorna o swab contento info definidas como swabs validos pendding e tanks invalidos
         return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending, payload)
     }
 
@@ -43,22 +42,21 @@ class CreateSwab {
         peddingSwabs: PendingSwab[],
         payload: MyJwtPayload
     ): Promise<CreateResponses> {
+        //Para criar um novo swab preciso saber basicamente de 3 coisas 
+        //1: Tank que sera realizado o Swab
+        //2: Tipo de swab que sera executado
+        //3: Lote interno do swab que sera realizado
         const swabsCreated = []
         const prefix = prefixInternalCode()
-        //aqui vou verificar o utimo lote interno sequencial
-        // const lastCodeSwab = await this.swabRepository.lastInternalCode(payload.companyId, prefix)
 
         for (const tank of tanksValid.validTanks) {
-            //pegando os swabs validos e verificando se eles tem o result pendding, a função validTanks valida apenas se os tanks existem 
+            //Pegando os swabs pendentes barrando a criação deles 
             const swabsPendings = new Set(peddingSwabs.map(s => s.tank))
             if (swabsPendings.has(tank.name)) continue
 
-            //para criar um novo swab preciso saber basicamente de 2 coisas o tank e o tipo de swab que sera feito
             const swabType = infoSwab[tank.name]
 
-            await this.swabRepository.ensure(payload.companyId, prefix)
-
-            const nextSequence = await this.swabRepository.nextSequence(payload.companyId, prefix)
+            const nextSequence = await this.swabRepository.nextSwabSequence(payload.companyId, prefix)
 
             const internalCode = generateInternalCode(nextSequence)
 
