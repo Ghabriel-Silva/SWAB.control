@@ -45,21 +45,27 @@ export function verifyNextSwab(swabs: SwabHistoryByTank) {
             continue
         }
 
-        //se frequencia atp === 0 proximo swab sera Atp
+        //Se frequencia atp === 0 proximo swab sera ATP
+        // Frequencia definida quando cria o tank default 3 
         if (frequencyATP === 0) {
             result[tankName] = SwabCheckType.ATP
             continue
         }
 
-        //Aqui  basicamente vou ter o check retornado para cada tank, e valido se em 'N' swabs o resultado é aprovado 
+        //Aqui  tenho o check retornado para cada tank, se em 'N' swabs o resultado é aprovado 
         const requiredSwabs: Swab[] = tankSwab.slice(0, frequencyATP)
 
-        //se todos forem aprovados retorno true se n false 
+        //se todos forem aprovados  e forem visuais retorno true se n false 
         const allAprovet: boolean = requiredSwabs.every(
-            s => s.check.result === SwabCheckResult.APPROVED
+            s => 
+                s.check.result === SwabCheckResult.APPROVED &&
+                s.check.type === SwabCheckType.VISUAL
+            
         )
+
+
         //aqui  no caso se  dentro do array todos terem o resultado aprovados e o tamanho desse array for igual a frequencia defina no tank significa que o proximo swab sera ATP, se n corresponder a essa condição o swab sera visual
-        if (allAprovet && requiredSwabs.length === frequencyATP) {
+        if (allAprovet && requiredSwabs.length === frequencyATP ) {
             result[tankName] = SwabCheckType.ATP
             continue
         }

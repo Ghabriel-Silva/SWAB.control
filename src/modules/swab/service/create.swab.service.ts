@@ -68,7 +68,7 @@ class CreateSwab {
             )
             swabsCreated.push(swab)
         }
-        //aqui retorno apenas o nome e o id do tank para mensagem de create 
+        //aqui retorno apenas o nome e o id e codigo interno do tank para mensagem de create 
         const swabsResponses: SwabsResponses[] = swabsCreated.map(swab =>
         (
             {

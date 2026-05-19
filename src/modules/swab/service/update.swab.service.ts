@@ -92,6 +92,26 @@ class UpdateSwab {
             internalCode: swabExiste.internalCode ? swabExiste.internalCode : ""
         }
     }
+
+    swabExiste = async () => {
+
+    }
+
+    operatorExiste = async () => {
+
+    }
+
+    faucetCodeIsEqualLast = async () => {
+
+    }
+
+    atpLimiteVerification = async () => {
+
+    }
+
+    updateSwab = async () => {
+
+    }
 }
 
 export default UpdateSwab
