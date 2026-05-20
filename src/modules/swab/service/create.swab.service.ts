@@ -1,6 +1,5 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
 import { Swab } from "../../../shared/database/entities/Swab"
-import { Tank } from "../../../shared/database/entities/Tank"
 import { generateInternalCode } from "../domain/generateInternalCode"
 import { prefixInternalCode } from "../domain/prefixInternalCode"
 import { SwabCheckType } from "../domain/swabCheck.enum"
@@ -14,51 +13,63 @@ import { validateTanks } from "../dto/types/create/validateTanks"
 import SwabCreateRepository from "../repository/create.swab.respository"
 
 class CreateSwab {
-    constructor(private swabRepository: SwabCreateRepository) { }
+    constructor(
+        private swabRepository: SwabCreateRepository
+    ) { }
 
-    async execute(data: CreateSwabType, payload: MyJwtPayload): Promise<CreateResponses> {
-        //Método para validação do tanks retorna tanks invalidos também
-        const validTanks: validateTanks = await this.validateTanks(data, payload)
+    async execute(
+        data: CreateSwabType,
+        payload: MyJwtPayload
+    ): Promise<CreateResponses> {
 
-        if (!validTanks.validTanks.length) {
+        const validatedTanks = await this.validateExistingTanks(data, payload)
+
+        if (!validatedTanks.validTanks.length) {
             return {
-                invalidTanks: validTanks.invalidTanks,
+                invalidTanks: validatedTanks.invalidTanks,
                 pending: [],
                 swabsCreate: []
             }
         }
-        //Busca os 3 ultimos swabs realizados e retorna tanto o swab quanto seu relacionamento com swabCheck retorno ex: c2:[swab{},swab{}]
-        const historySwabs: SwabHistoryByTank = await this.historySwabs(validTanks, payload)
 
-        // Decidi próximo tipo VISUAL ou ATP conforme a regra de negócio definida e separa swabs que estão em estado pendentes
-        const nextSwab = verifyNextSwab(historySwabs)
+        const swabHistory = await this.getSwabHistory(validatedTanks, payload)
 
-        //Cria e retorna o swab contento info definidas como swabs validos pendding e tanks invalidos
-        return await this.createSwab(validTanks, nextSwab.result, nextSwab.pending, payload)
+        const nextSwab = verifyNextSwab(swabHistory)
+
+        return await this.createSwabs(
+            validatedTanks,
+            nextSwab.result,
+            nextSwab.pending,
+            payload
+        )
     }
 
-    private async createSwab(tanksValid: validateTanks,
-        infoSwab: Record<string, SwabCheckType>,
-        peddingSwabs: PendingSwab[],
+    private async createSwabs(
+        validatedTanks: validateTanks,
+        swabTypes: Record<string, SwabCheckType>,
+        pendingSwabs: PendingSwab[],
         payload: MyJwtPayload
     ): Promise<CreateResponses> {
-        //Para criar um novo swab preciso saber basicamente de 3 coisas 
-        //1: Tank que sera realizado o Swab
-        //2: Tipo de swab que sera executado
-        //3: Lote interno do swab que sera realizado
-        const swabsCreated = []
+
+        const createdSwabs = []
+
         const prefix = prefixInternalCode()
 
-        for (const tank of tanksValid.validTanks) {
-            //Pegando os swabs pendentes barrando a criação deles 
-            const swabsPendings = new Set(peddingSwabs.map(s => s.tank))
-            if (swabsPendings.has(tank.name)) continue
+        const pendingTankNames = new Set(
+            pendingSwabs.map(swab => swab.tank)
+        )
 
-            const swabType = infoSwab[tank.name]
+        for (const tank of validatedTanks.validTanks) {
 
-            const nextSequence = await this.swabRepository.nextSwabSequence(payload.companyId, prefix)
+            if (pendingTankNames.has(tank.name)) {
+                continue
+            }
 
-            const internalCode = generateInternalCode(nextSequence)
+            const swabType = swabTypes[tank.name]
+
+            const nextSequence: number = await this.swabRepository.nextSwabSequence(payload.companyId, prefix)
+
+            const internalCode: string = generateInternalCode(nextSequence)
 
             const swab = await this.swabRepository.create(
                 tank,
@@ -66,45 +77,47 @@ class CreateSwab {
                 payload.companyId,
                 internalCode
             )
-            swabsCreated.push(swab)
+
+            createdSwabs.push(swab)
         }
-        //aqui retorno apenas o nome e o id e codigo interno do tank para mensagem de create 
-        const swabsResponses: SwabsResponses[] = swabsCreated.map(swab =>
-        (
-            {
+
+        const createdSwabResponses: SwabsResponses[] =
+            createdSwabs.map(swab => ({
                 swabId: swab.id,
                 internalCodeSwab: swab.internalCode,
                 tankName: swab.tank.name,
-            }
-        ))
+                typeAtp: swab.check.type
+            }))
 
         return {
-            invalidTanks: tanksValid.invalidTanks,
-            pending: peddingSwabs,
-            swabsCreate: swabsResponses
+            invalidTanks: validatedTanks.invalidTanks,
+            pending: pendingSwabs,
+            swabsCreate: createdSwabResponses
         }
     }
 
-    private async validateTanks(data: CreateSwabType, payloud: MyJwtPayload): Promise<validateTanks> {
-        const foundTanks: Tank[] = await this.swabRepository.existTank(
-            data.tank.map(i => i.toUpperCase()),
-            payloud
-        )
-        const foundNames: string[] = foundTanks.map(t => t.name)
+    private async validateExistingTanks(
+        data: CreateSwabType,
+        payload: MyJwtPayload
+    ): Promise<validateTanks> {
 
-        const invalidTanks: string[] = data.tank.filter(
-            name => !!name && !foundNames.includes(name)
-        )
+        const foundTanks = await this.swabRepository.existTank(data.tank.map(i => i.toUpperCase()), payload)
+        const foundNames = foundTanks.map(tank => tank.name)
+
+        const invalidTanks = data.tank.filter(name => !!name && !foundNames.includes(name))
+
         return {
             validTanks: foundTanks,
             invalidTanks
         }
     }
 
-    private async historySwabs(validTanks: validateTanks, payload: MyJwtPayload): Promise<SwabHistoryByTank> {
+    private async getSwabHistory(validatedTanks: validateTanks, payload: MyJwtPayload): Promise<SwabHistoryByTank> {
         const entries = await Promise.all(
-            validTanks.validTanks.map(async (tank) => {
+            validatedTanks.validTanks.map(async (tank) => {
+
                 const swabs = await this.swabRepository.historySwab(tank.id, payload, tank.atpFrequency)
+
                 return [tank.name, swabs] as [string, Swab[]]
             })
         )

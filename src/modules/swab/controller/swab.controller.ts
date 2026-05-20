@@ -4,6 +4,7 @@ import SwabService from "../service/swab.service";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { SWAB_MESSAGES } from "../constants/swab.messages";
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
+import { CancelResponse } from "../dto/types/cancel/cancelResponse";
 
 type Params = {
     id: string
@@ -34,7 +35,21 @@ class SwabController {
         return res.json(
             successResponse(
                 result,
-                `SWAB ${result.internalCode} atualizado com sucesso`
+                SWAB_MESSAGES.UPDATE.SUCCESS(result.internalCode)
+            )
+        )
+    }
+
+    cancelSwab = async (req: Request<Params>, res: Response) => {
+        const { id } = req.params
+        const payload: MyJwtPayload = req.user as MyJwtPayload
+        const data = req.body
+
+        const resul: CancelResponse = await this.swabService.cancelSwab(id, payload, data)
+        res.json(
+            successResponse(
+                resul,
+                `Swab cancelado com sucesso`
             )
         )
     }

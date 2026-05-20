@@ -9,7 +9,7 @@ export class Swab {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column('varchar', { nullable: true, unique: true})
+    @Column('varchar', { nullable: true, unique: true })
     internalCode: string
 
     @ManyToOne(() => Operator, operator => operator.swabs)
@@ -20,6 +20,19 @@ export class Swab {
 
     @Column('varchar', { nullable: true, length: 50 })
     faucetCode: string
+
+    @Column({ default: false })
+    isCancelled: boolean
+
+    @Column({ nullable: true })
+    cancelledAt: Date
+
+    @Column({
+        type: 'varchar',
+        length: 300,
+        nullable: true
+    })
+    cancelReason: string
 
     @OneToOne(() => SwabCheck, check => check.swab, {
         cascade: true

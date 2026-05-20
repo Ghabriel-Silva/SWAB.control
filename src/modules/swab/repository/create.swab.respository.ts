@@ -15,7 +15,6 @@ class SwabCreateRepository {
         this.swabRepository = AppDataSource.getRepository(Swab)
         this.tankRepository = AppDataSource.getRepository(Tank)
     }
-
     create = async (
         tank: Tank,
         type: SwabCheckType,
@@ -86,7 +85,7 @@ class SwabCreateRepository {
         } catch (err) {
             await queryRunner.rollbackTransaction()
             throw err
-        }finally{
+        } finally {
             await queryRunner.release()
         }
     }
@@ -94,6 +93,7 @@ class SwabCreateRepository {
     historySwab = async (tanks: string, payloud: MyJwtPayload, frequencyATP: number) => {
         const res = await this.swabRepository.find({
             where: {
+                isCancelled: false,
                 tank: {
                     id: tanks,
                     company: {

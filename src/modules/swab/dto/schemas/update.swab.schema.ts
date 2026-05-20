@@ -19,7 +19,7 @@ export const updateSwabSchema = yup.object({
             Object.values(SwabCheckType),
             "O tipo de swab deve ser VISUAL, ATP ou MICRO"
         )
-        .required('É obrigatório informar o tipo de swab realizado'),
+        .required(),
 
     result: yup
         .mixed<SwabCheckResult>()

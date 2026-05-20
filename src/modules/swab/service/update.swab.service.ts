@@ -1,48 +1,96 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
-import { Operator } from "../../../shared/database/entities/Operator";
 import { Swab } from "../../../shared/database/entities/Swab";
-import { SwabCheck } from "../../../shared/database/entities/SwabCheck";
 import AppError from "../../../shared/errors/AppError";
+import { objectUpdate } from "../dto/types/update/objectUpdate";
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
-import SwabCreateRepository from "../repository/create.swab.respository";
 import SwabUpdateRepository from "../repository/update.swab.respository";
+import { SwabCheckType } from "../domain/swabCheck.enum";
+import { SWAB_MESSAGES } from "../constants/swab.messages";
 
 class UpdateSwab {
     constructor(private swabUpdateRepository: SwabUpdateRepository) { }
 
+
+
     execute = async (swabId: string, payload: MyJwtPayload, data: UpdateSwabType) => {
+        //validação se o swab existe se não existir nem continua
+        const swabExists = await this.validateSwabExists(swabId, payload)
+
+        this.ValidationUpdateSwabType(swabExists, data)
+
+        await this.validateOperatorExists(payload, data)
+
+        await this.validateFaucetCodeSequence(swabId, payload, data, swabExists.tank.id)
+
+        await this.validateAtpLimit(swabExists, data)
+
+        const updateData: Partial<Swab> = objectUpdate(data)
+
+        return await this.updateSwab(updateData, swabId, payload, swabExists)
+    }
+
+    validateSwabExists = async (swabId: string, payload: MyJwtPayload): Promise<Swab> => {
         //validação se o swab existe se não existir nem continua
         const swabExiste = await this.swabUpdateRepository.swabexiste(swabId, payload.companyId)
 
         if (!swabExiste) {
             throw new AppError(
-                404,
-                'Swab não encontrado'
+                400,
+                SWAB_MESSAGES.UPDATE.NOT_FOUND
             )
         }
+        return swabExiste
+    }
 
+    ValidationUpdateSwabType = (swabExists: Swab, data: UpdateSwabType) => {
+        const ATP_REQUIRED_TYPES = [
+            SwabCheckType.ATP,
+            SwabCheckType.MICRO
+        ]
+        if (data.performedType == null) return
+
+
+        const validationsBdType = ATP_REQUIRED_TYPES.includes(swabExists.check.type)
+        const validationsUserType = data.performedType === SwabCheckType.VISUAL
+        const validationUpdateSwab = validationsBdType && validationsUserType && !data.observation?.trim()
+        if (validationUpdateSwab) {
+            throw new AppError(
+                400,
+                SWAB_MESSAGES.UPDATE.SAME_FAUCET_JUSTIFICATION
+            )
+        }
+    }
+
+    validateOperatorExists = async (payload: MyJwtPayload, data: UpdateSwabType) => {
         //Validando se operador existe, validação de segurança 
         const operatorExiste = await this.swabUpdateRepository.operatorExiste(data.operatorId, payload.companyId)
 
         if (!operatorExiste) {
-            throw new AppError(404, 'Operador não encontrado')
+            throw new AppError(
+                404,
+                SWAB_MESSAGES.UPDATE.OPERATOR_NOT_FOUND
+            )
         }
+        return
+    }
 
-        //Validando se a torneira é igual a ultima cadastrada se for obrigatoriamente ter uma justificativa
-        const lastfaucet = await this.swabUpdateRepository.lastfacet(swabExiste.tank.id, payload.companyId, swabId)
+    validateFaucetCodeSequence = async (swabId: string, payload: MyJwtPayload, data: UpdateSwabType, tankId: string) => {
+        const lastfaucet = await this.swabUpdateRepository.lastfacet(tankId, payload.companyId, swabId)
 
         const isSameFaucet: boolean = lastfaucet?.faucetCode?.toUpperCase() === data.faucetCode.toUpperCase()
 
         if (isSameFaucet && !data.sameFaucetJustification) {
             throw new AppError(
                 400,
-                'Informe uma justificativa para reutilizar a mesma torneira.'
+                SWAB_MESSAGES.UPDATE.SAME_FAUCET_JUSTIFICATION
             )
         }
+        return
+    }
 
-        //validar se o atp que veio esta dentro do valor de atp limit
-        const atpLimit = swabExiste.tank.atpLimit
-            ?? swabExiste.company.defaultAtpLimit
+    validateAtpLimit = async (swabExists: Swab, data: UpdateSwabType) => {
+        const atpLimit = swabExists.tank.atpLimit
+            ?? swabExists.company.defaultAtpLimit
 
         if (
             atpLimit != null &&
@@ -52,65 +100,26 @@ class UpdateSwab {
         ) {
             throw new AppError(
                 400,
-                'Observação é obrigatória quando o ATP é maior que o limite definido'
+                SWAB_MESSAGES.UPDATE.ATP_LIMIT_OBSERVATION
             )
         }
+        return
+    }
 
-        const dataToUpdate: Partial<Swab> = {
-            faucetCode: data.faucetCode,
-            operator: {
-                id: data.operatorId
-            } as Operator,
-            check: {
-                type: data.performedType,
-                result: data.result,
-                ...(data.validatedAt && { validatedAt: data.validatedAt }),
-                ...(data.valueAtp && { valueAtp: data.valueAtp }),
-                ...(data.batch && { batch: data.batch }),
-                ...(data.observation && { observation: data.observation }),
-                ...(data.sameFaucetJustification && {
-                    sameFaucetJustification: data.sameFaucetJustification
-                })
-            } as SwabCheck
-        }
-
+    updateSwab = async (dataToUpdate: Partial<Swab>, swabId: string, payload: MyJwtPayload, swabExists: Swab) => {
         const updateSwab: boolean = await this.swabUpdateRepository.updateSwab(dataToUpdate, swabId, payload.companyId)
 
         if (!updateSwab) {
             throw new AppError(
                 404,
-                `Não foi possivel atualizar o swab do tank ${swabExiste.tank.name}`
+                SWAB_MESSAGES.UPDATE.UPDATE_ERROR(swabExists.tank.name)
             )
         }
-        //refatorar em funções menores 
-        //criar loteInterno no canmpo swab
-
-
         return {
-            tankName: swabExiste.tank.name,
-            swabId: swabExiste.id,
-            internalCode: swabExiste.internalCode ? swabExiste.internalCode : ""
+            tankName: swabExists.tank.name,
+            swabId: swabExists.id,
+            internalCode: swabExists.internalCode ? swabExists.internalCode : ""
         }
-    }
-
-    swabExiste = async () => {
-
-    }
-
-    operatorExiste = async () => {
-
-    }
-
-    faucetCodeIsEqualLast = async () => {
-
-    }
-
-    atpLimiteVerification = async () => {
-
-    }
-
-    updateSwab = async () => {
-
     }
 }
 

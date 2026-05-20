@@ -1,11 +1,8 @@
 import { Not, Repository } from "typeorm";
 import { Swab } from "../../../shared/database/entities/Swab";
 import { AppDataSource } from "../../../shared/database/data-source";
-import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { Operator } from "../../../shared/database/entities/Operator";
 import { SwabCheck } from "../../../shared/database/entities/SwabCheck";
-
-
 class SwabUpdateRepository {
     private swabUpdateRepository: Repository<Swab>
     private operatorRepository: Repository<Operator>
@@ -31,6 +28,7 @@ class SwabUpdateRepository {
             .set(swabData)
             .where("id = :swabId", { swabId })
             .andWhere("companyId = :companyId", { companyId })
+            .andWhere("isCancelled = :cancelled", { cancelled: false })
             .execute()
 
         if (!swabR.affected) return false
@@ -47,9 +45,10 @@ class SwabUpdateRepository {
         return true
     }
 
-    swabexiste = async (id: string, companyId: string) => {
+    swabexiste = async (id: string, companyId: string): Promise<Swab | null> => {
         return await this.swabUpdateRepository.findOne({
             where: {
+                isCancelled: false,
                 id,
                 company: {
                     id: companyId
@@ -57,7 +56,8 @@ class SwabUpdateRepository {
             },
             relations: {
                 tank: true,
-                company: true
+                company: true,
+                check: true
             }
         })
     }
@@ -73,7 +73,6 @@ class SwabUpdateRepository {
                     id: companyId
                 }
             },
-
             order: {
                 createdAt: 'DESC'
             }
