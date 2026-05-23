@@ -10,17 +10,18 @@ import { PendingSwab } from "../dto/types/create/penddingSwabs"
 import { SwabHistoryByTank } from "../dto/types/create/swabHistoryByTank"
 import { SwabsResponses } from "../dto/types/create/swabsResponses"
 import { validateTanks } from "../dto/types/create/validateTanks"
-import SwabCreateRepository from "../repository/create.swab.respository"
+import SwabRepository from "../repository/swab.repository"
+import TankRepository from "../repository/tank.repository"
+import SwabSequenceRepository from "../repository/swab-sequence.repository"
 
 class CreateSwab {
     constructor(
-        private swabRepository: SwabCreateRepository
+        private swabRepository: SwabRepository,
+        private tankRepository: TankRepository,
+        private swabSequenceRepository: SwabSequenceRepository
     ) { }
 
-    async execute(
-        data: CreateSwabType,
-        payload: MyJwtPayload
-    ): Promise<CreateResponses> {
+    async execute(data: CreateSwabType, payload: MyJwtPayload): Promise<CreateResponses> {
 
         const validatedTanks = await this.validateExistingTanks(data, payload)
 
@@ -44,12 +45,7 @@ class CreateSwab {
         )
     }
 
-    private async createSwabs(
-        validatedTanks: validateTanks,
-        swabTypes: Record<string, SwabCheckType>,
-        pendingSwabs: PendingSwab[],
-        payload: MyJwtPayload
-    ): Promise<CreateResponses> {
+    private async createSwabs(validatedTanks: validateTanks, swabTypes: Record<string, SwabCheckType>, pendingSwabs: PendingSwab[], payload: MyJwtPayload): Promise<CreateResponses> {
 
         const createdSwabs = []
 
@@ -67,12 +63,12 @@ class CreateSwab {
 
             const swabType = swabTypes[tank.name]
 
-            const nextSequence: number = await this.swabRepository.nextSwabSequence(payload.companyId, prefix)
+            const nextSequence: number = await this.swabSequenceRepository.nextSequence(payload.companyId, prefix)
 
             const internalCode: string = generateInternalCode(nextSequence)
 
             const swab = await this.swabRepository.create(
-                tank,
+                tank.id,
                 swabType,
                 payload.companyId,
                 internalCode
@@ -96,15 +92,18 @@ class CreateSwab {
         }
     }
 
-    private async validateExistingTanks(
-        data: CreateSwabType,
-        payload: MyJwtPayload
-    ): Promise<validateTanks> {
+    private async validateExistingTanks(data: CreateSwabType, payload: MyJwtPayload): Promise<validateTanks> {
 
-        const foundTanks = await this.swabRepository.existTank(data.tank.map(i => i.toUpperCase()), payload)
+        const foundTanks = await this.tankRepository.exists(
+            data.tank.map(i => i.toUpperCase()),
+            payload.companyId
+        )
+
         const foundNames = foundTanks.map(tank => tank.name)
 
-        const invalidTanks = data.tank.filter(name => !!name && !foundNames.includes(name))
+        const invalidTanks = data.tank.filter(
+            name => !!name && !foundNames.includes(name)
+        )
 
         return {
             validTanks: foundTanks,
@@ -113,10 +112,15 @@ class CreateSwab {
     }
 
     private async getSwabHistory(validatedTanks: validateTanks, payload: MyJwtPayload): Promise<SwabHistoryByTank> {
+
         const entries = await Promise.all(
             validatedTanks.validTanks.map(async (tank) => {
 
-                const swabs = await this.swabRepository.historySwab(tank.id, payload, tank.atpFrequency)
+                const swabs = await this.swabRepository.history(
+                    tank.id,
+                    payload.companyId,
+                    tank.atpFrequency
+                )
 
                 return [tank.name, swabs] as [string, Swab[]]
             })

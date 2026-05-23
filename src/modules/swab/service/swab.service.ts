@@ -1,8 +1,10 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
 import { CreateSwabType } from "../dto/schemas/create.swab.schema"
+import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema"
 import { CancelSwabType } from "../dto/schemas/update.status.swab.schema"
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema"
 import CreateSwab from "./create.swab.service"
+import FilterSwab from "./filter.swab.service"
 import CancelSwab from "./status.swab.service"
 import UpdateSwab from "./update.swab.service"
 
@@ -10,7 +12,8 @@ class SwabService {
     constructor(
         private swabCreate: CreateSwab,
         private swabUpdate: UpdateSwab,
-        private swabCancel: CancelSwab
+        private swabCancel: CancelSwab, 
+        private swabFilter: FilterSwab
     ) { }
 
     async create(data: CreateSwabType, payloud: MyJwtPayload) {
@@ -25,6 +28,9 @@ class SwabService {
         return await this.swabCancel.execute(swabId, payload, data)
     }
 
+    async filterSwabs(payload: MyJwtPayload, listSwabs: FilterSwabsQueryType) {
+        return await this.swabFilter.execute(payload, listSwabs)
+    }
 
 }
 

@@ -19,10 +19,9 @@ export const objectUpdate = (data: UpdateSwabType): Partial<Swab> => {
                 validatedAt: data.validatedAt
             }),
 
-            ...(data.valueAtp && {
+            ...(data.valueAtp !== undefined && {
                 valueAtp: data.valueAtp
             }),
-
             ...(data.batch && {
                 batch: data.batch
             }),

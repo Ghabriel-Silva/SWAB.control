@@ -1,44 +1,74 @@
 import { Router } from "express";
 import authenticateMiddleware from "../../shared/http/middlewares/authenticateMiddleware";
+import authorizeRoles from "../../shared/http/middlewares/authorizeRoles";
+import validateData from "../../shared/http/middlewares/validateData";
 import { asyncHandler } from "../../shared/http/asyncHandler";
+import { UserRole } from "../user/domain/role.enum";
 import SwabController from "./controller/swab.controller";
 import SwabService from "./service/swab.service";
-import authorizeRoles from "../../shared/http/middlewares/authorizeRoles";
-import { UserRole } from "../user/domain/role.enum";
+import SwabRepository from "./repository/swab.repository";
+import TankRepository from "./repository/tank.repository";
+import OperatorRepository from "./repository/operator.repository";
+import SwabSequenceRepository from "./repository/swab-sequence.repository";
 import { createSwabSchema } from "./dto/schemas/create.swab.schema";
-import validateData from "../../shared/http/middlewares/validateData";
 import { updateSwabSchema } from "./dto/schemas/update.swab.schema";
-import UpdateSwab from "./service/update.swab.service";
-import SwabCreateRepository from "./repository/create.swab.respository";
-import SwabUpdateRepository from "./repository/update.swab.respository";
-import CreateSwab from "./service/create.swab.service";
 import { cancelSwabSchema } from "./dto/schemas/update.status.swab.schema";
-import CancelSwab from "./service/status.swab.service";
 import { swabIdParamsSchema } from "./dto/schemas/swab.params.schema";
-import SwabCancelRepository from "./repository/update.status.swab.repository";
+import { filterSwabsQuerySchema } from "./dto/schemas/filter.swabs.query.schema";
+import CreateSwab from "./service/create.swab.service";
+import UpdateSwab from "./service/update.swab.service";
+import CancelSwab from "./service/status.swab.service";
+import FilterSwab from "./service/filter.swab.service";
+import SwabFilterRepository from "./repository/filter.swab.repository";
 
 const swabRoutes = Router()
-const swabCreateRepository = new SwabCreateRepository()
-const swabUpdateRepository = new SwabUpdateRepository()
-const swabCancelRepository = new SwabCancelRepository()
 
+/* repositories */
+const swabRepository = new SwabRepository()
+const tankRepository = new TankRepository()
+const operatorRepository = new OperatorRepository()
+const swabSequenceRepository = new SwabSequenceRepository()
+const swabFilterRepository = new SwabFilterRepository()
 
-const createSwab = new CreateSwab(swabCreateRepository)
-const updateSwab = new UpdateSwab(swabUpdateRepository)
-const cancelSwab = new CancelSwab(swabCancelRepository, swabUpdateRepository)
+/* services */
+const createSwab = new CreateSwab(
+    swabRepository,
+    tankRepository,
+    swabSequenceRepository
+)
 
-const swabService = new SwabService(createSwab, updateSwab, cancelSwab)
+const updateSwab = new UpdateSwab(
+    swabRepository,
+    operatorRepository
+)
 
+const cancelSwab = new CancelSwab(
+    swabRepository
+)
+
+const filterSwab = new FilterSwab(
+    swabFilterRepository
+)
+
+const swabService = new SwabService(
+    createSwab,
+    updateSwab,
+    cancelSwab,
+    filterSwab
+)
+
+/* controller */
 const swabController = new SwabController(swabService)
 
-swabRoutes.post('/', //Create swab 
+/* routes */
+swabRoutes.post('/',
     authenticateMiddleware,
     validateData(createSwabSchema, 'body'),
     authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
     asyncHandler(swabController.create)
 )
 
-swabRoutes.patch('/:id/check', //update swab
+swabRoutes.patch('/:id/check',
     authenticateMiddleware,
     validateData(swabIdParamsSchema, 'params'),
     validateData(updateSwabSchema, 'body'),
@@ -49,8 +79,16 @@ swabRoutes.patch('/:id/check', //update swab
 swabRoutes.patch('/:id/status',
     authenticateMiddleware,
     validateData(swabIdParamsSchema, 'params'),
-    validateData(cancelSwabSchema, "body"),
+    validateData(cancelSwabSchema, 'body'),
     authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
     asyncHandler(swabController.cancelSwab)
 )
+
+swabRoutes.get('/',
+    authenticateMiddleware,
+    validateData(filterSwabsQuerySchema, 'query'),
+    authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
+    asyncHandler(swabController.filterSwabs)
+)
+
 export default swabRoutes

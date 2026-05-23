@@ -32,8 +32,8 @@ export const SWAB_MESSAGES = {
     },
 
     DELETE: {
-        SUCCESS:
-            'Swab cancelado com sucesso',
+        SUCCESS: (swabLote: string) =>
+            `SWAB ${swabLote} cancelado com sucesso`,
 
         NOT_FOUND_OR_CANCELED:
             'Swab não encontrado ou já cancelado',

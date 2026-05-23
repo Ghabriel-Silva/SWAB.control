@@ -5,6 +5,9 @@ import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { SWAB_MESSAGES } from "../constants/swab.messages";
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
 import { CancelResponse } from "../dto/types/cancel/cancelResponse";
+import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema";
+import { Swab } from "../../../shared/database/entities/Swab";
+
 
 type Params = {
     id: string
@@ -49,9 +52,20 @@ class SwabController {
         res.json(
             successResponse(
                 resul,
-                `Swab cancelado com sucesso`
+                SWAB_MESSAGES.DELETE.SUCCESS(resul.swabLote)
             )
         )
+    }
+
+    filterSwabs = async (req: Request<FilterSwabsQueryType>, res: Response) => {
+        const queryList = req.query
+        const payload: MyJwtPayload = req.user as MyJwtPayload
+
+        const result = await this.swabService.filterSwabs(payload, queryList)
+
+        console.log(result)
+
+        return res.json(result)
     }
 }
 
