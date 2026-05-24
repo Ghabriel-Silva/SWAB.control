@@ -6,7 +6,7 @@ import { SWAB_MESSAGES } from "../constants/swab.messages";
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
 import { CancelResponse } from "../dto/types/cancel/cancelResponse";
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema";
-import { Swab } from "../../../shared/database/entities/Swab";
+
 
 
 type Params = {
@@ -57,13 +57,11 @@ class SwabController {
         )
     }
 
-    filterSwabs = async (req: Request<FilterSwabsQueryType>, res: Response) => {
-        const queryList = req.query
+    filterSwabs = async (req:Request, res: Response) => {
+        const queryList:FilterSwabsQueryType = req.query
         const payload: MyJwtPayload = req.user as MyJwtPayload
-
         const result = await this.swabService.filterSwabs(payload, queryList)
 
-        console.log(result)
 
         return res.json(result)
     }

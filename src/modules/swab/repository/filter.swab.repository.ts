@@ -25,19 +25,16 @@ class SwabFilterRepository {
                 operatorId: filters.operatorId
             })
         }
-
         if (filters.tankId) {
             query.andWhere('tank.id = :tankId', {
                 tankId: filters.tankId
             })
         }
-
         if (filters.result) {
             query.andWhere('check.result = :result', {
                 result: filters.result
             })
         }
-
         if (filters.internalCode) {
             query.andWhere('swab.internalCode =  :internalCode', {
                 internalCode: filters.internalCode
@@ -49,6 +46,7 @@ class SwabFilterRepository {
                 type: filters.type
             })
         }
+
         if (filters.startDate && filters.endDate) {
             query.andWhere("swab.createdAt >= :startDate", {
                 startDate: filters.startDate,
@@ -59,8 +57,12 @@ class SwabFilterRepository {
             })
         }
 
+        if (filters.isCancelled !== undefined) {
+            query.andWhere("swab.isCancelled = :isCancelled", {
+                isCancelled:filters.isCancelled
+            })
+        }
         return await query.getMany()
-
     }
 
 

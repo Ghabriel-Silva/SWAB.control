@@ -68,10 +68,27 @@ export const filterSwabsQuerySchema = yup.object({
     endDate: yup
         .date()
         .typeError('Data final deve ser uma data válida')
-        .min(
-            yup.ref('startDate'),
-            'Data final não pode ser menor que a data inicial'
-        )
+        .when('startDate', {
+            is: (value: Date | undefined) => value !== undefined,
+            then: (schema) =>
+                schema.min(
+                    yup.ref('startDate'),
+                    'Data final não pode ser menor que a data inicial'
+                ),
+
+            otherwise: (schema) =>
+                schema.test(
+                    'startDate-required',
+                    'A data inicial é obrigatória quando existir data final',
+                    function (value) {
+                        if (value && !this.parent.startDate) {
+                            return false;
+                        }
+
+                        return true;
+                    }
+                ),
+        })
         .optional(),
 
     order: yup

@@ -1,4 +1,3 @@
-import { date } from "yup"
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
 import { Swab } from "../../../shared/database/entities/Swab"
 
@@ -12,40 +11,36 @@ class FilterSwab {
     constructor(
         private swabFilterRepository: SwabFilterRepository
     ) { }
-
-    execute = async (
-        payload: MyJwtPayload,
-        filterSwabs: FilterSwabsQueryType
-    ) => {
-        let startDate = subDays(
+    execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType) => {
+        let startDateDefault = subDays(
             startOfDay(new Date()),
             30
         )
 
-        let endDate = addDays(
+        let endDateDefault = addDays(
             startOfDay(new Date()),
             1
         )
-
         if (filterSwabs.startDate) {
-            startOfDay(
+            filterSwabs.startDate = startOfDay(
                 new Date(filterSwabs.startDate)
             )
+        } else {
+            filterSwabs.startDate = startDateDefault
         }
-
         if (filterSwabs.endDate) {
-            endDate = addDays(
+            filterSwabs.endDate = addDays(
                 startOfDay(
                     new Date(filterSwabs.endDate)
                 ),
                 1
-            );
+            )
+        } else {
+            filterSwabs.endDate = endDateDefault
+
         }
 
-        console.log(endDate)
-        console.log(startDate)
-
-
+        console.log(filterSwabs)
         const resp: Swab[] = await this.swabFilterRepository.filter(filterSwabs, payload)
 
         const mapperRes = SwabResponseMapper.toResponseList(resp)
