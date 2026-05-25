@@ -57,13 +57,20 @@ class SwabController {
         )
     }
 
-    filterSwabs = async (req:Request, res: Response) => {
-        const queryList:FilterSwabsQueryType = req.query
+    filterSwabs = async (req: Request, res: Response) => {
+        const queryList: FilterSwabsQueryType = req.query
         const payload: MyJwtPayload = req.user as MyJwtPayload
         const result = await this.swabService.filterSwabs(payload, queryList)
 
-
-        return res.json(result)
+        return res.json(
+            successResponse(
+                result.data,
+                result.data.length ?
+                    SWAB_MESSAGES.QUERY.FILTER_SUCCESS :
+                    SWAB_MESSAGES.QUERY.FILTER_EMPTY,
+                result.meta
+            )
+        )
     }
 }
 

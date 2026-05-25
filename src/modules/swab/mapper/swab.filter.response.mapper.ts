@@ -22,6 +22,8 @@ export class SwabResponseMapper {
 
             updatedAt: swab.updatedAt,
 
+            lastFaucetTank: swab.lastFaucetTank,
+
             operator: swab.operator && {
                 id: swab.operator.id,
                 name: swab.operator.name

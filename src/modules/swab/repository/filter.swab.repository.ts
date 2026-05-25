@@ -3,6 +3,8 @@ import { Swab } from "../../../shared/database/entities/Swab"
 import { AppDataSource } from "../../../shared/database/data-source"
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema"
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
+import { SwabFilterResponse } from "../dto/types/filter/swab.filter.response"
+import { RepositoryResponse } from "../dto/types/filter/respository.response"
 
 
 class SwabFilterRepository {
@@ -12,13 +14,18 @@ class SwabFilterRepository {
         this.swabFilterRepository = AppDataSource.getRepository(Swab)
     }
 
-    filter = async (filters: FilterSwabsQueryType, payloud: MyJwtPayload) => {
+    filter = async (filters: FilterSwabsQueryType, payloud: MyJwtPayload): Promise<RepositoryResponse> => {
+        const order: 'ASC' | 'DESC' = filters.order ?? 'DESC'
+
         const query = this.swabFilterRepository
             .createQueryBuilder('swab')
             .leftJoinAndSelect('swab.check', 'check')
             .leftJoinAndSelect('swab.tank', 'tank')
             .leftJoinAndSelect('swab.operator', 'operator')
             .where('swab.company =  :companyId', { companyId: payloud.companyId })
+            .orderBy('swab.createdAt', order)
+            .skip((filters.page! - 1) * filters.limit!)
+            .take(filters.limit)
 
         if (filters.operatorId) {
             query.andWhere('operator.id =  :operatorId', {
@@ -59,10 +66,15 @@ class SwabFilterRepository {
 
         if (filters.isCancelled !== undefined) {
             query.andWhere("swab.isCancelled = :isCancelled", {
-                isCancelled:filters.isCancelled
+                isCancelled: filters.isCancelled
             })
         }
-        return await query.getMany()
+        const [swabs, total] = await query.getManyAndCount()
+
+        return {
+            swabs,
+            total
+        } as RepositoryResponse
     }
 
 

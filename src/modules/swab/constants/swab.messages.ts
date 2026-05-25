@@ -43,6 +43,10 @@ export const SWAB_MESSAGES = {
     },
 
     QUERY: {
-        NOT_FOUND: 'Swab não encontrado'
+        FILTER_SUCCESS:
+            'Filtros aplicados com sucesso',
+
+        FILTER_EMPTY:
+            'Nenhum resultado encontrado para os filtros informados'
     }
 }

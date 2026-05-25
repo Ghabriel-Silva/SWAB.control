@@ -1,17 +1,52 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
-import { Swab } from "../../../shared/database/entities/Swab"
-
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema"
+import { DateFilter } from "../dto/types/filter/date.filter"
+import { RepositoryResponse } from "../dto/types/filter/respository.response"
+import { MetaSwabFilter, SwabFilterResponse } from "../dto/types/filter/swab.filter.response"
+import { SwabResponseDTO } from "../dto/types/filter/swab.filter.response.dto"
 import { SwabResponseMapper } from "../mapper/swab.filter.response.mapper"
 import SwabFilterRepository from "../repository/filter.swab.repository"
 import { addDays, subDays, startOfDay } from "date-fns";
+import SwabRepository from "../repository/swab.repository"
 
 
 class FilterSwab {
     constructor(
-        private swabFilterRepository: SwabFilterRepository
-    ) { }
-    execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType) => {
+        private swabFilterRepository: SwabFilterRepository,
+        private swabRepository: SwabRepository
+    ) {}
+    execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType): Promise<SwabFilterResponse> => {
+        const { startDate, endDate }: DateFilter = this.validateDate(filterSwabs.startDate, filterSwabs.endDate)
+
+        filterSwabs.startDate = startDate,
+            filterSwabs.endDate = endDate
+
+        const page = filterSwabs.page ? filterSwabs.page : 1
+        const limit = filterSwabs.limit ? filterSwabs.limit : 10
+
+        filterSwabs.page = page
+        filterSwabs.limit = limit
+       
+
+        const resp: RepositoryResponse = await this.swabFilterRepository.filter(filterSwabs, payload)
+
+        const mapperRes: SwabResponseDTO[] = SwabResponseMapper.toResponseList(resp.swabs)
+
+        const meta: MetaSwabFilter = {
+            limit: filterSwabs.limit,
+            page: filterSwabs.page,
+            total: resp.total,
+            totalPages: Math.ceil((resp.total / filterSwabs.limit))
+        }
+
+        return {
+            data: mapperRes,
+            meta: meta
+        } as SwabFilterResponse
+    }
+
+
+    validateDate = (startDate?: Date, endDate?: Date): DateFilter => {
         let startDateDefault = subDays(
             startOfDay(new Date()),
             30
@@ -21,30 +56,32 @@ class FilterSwab {
             startOfDay(new Date()),
             1
         )
-        if (filterSwabs.startDate) {
-            filterSwabs.startDate = startOfDay(
-                new Date(filterSwabs.startDate)
+        if (startDate) {
+            startDate = startOfDay(
+                new Date(startDate)
             )
         } else {
-            filterSwabs.startDate = startDateDefault
+            startDate = startDateDefault
         }
-        if (filterSwabs.endDate) {
-            filterSwabs.endDate = addDays(
+        if (endDate) {
+            endDate = addDays(
                 startOfDay(
-                    new Date(filterSwabs.endDate)
+                    new Date(endDate)
                 ),
                 1
             )
         } else {
-            filterSwabs.endDate = endDateDefault
-
+            endDate = endDateDefault
         }
 
-        console.log(filterSwabs)
-        const resp: Swab[] = await this.swabFilterRepository.filter(filterSwabs, payload)
+        return {
+            startDate,
+            endDate
+        } as DateFilter
 
-        const mapperRes = SwabResponseMapper.toResponseList(resp)
-        return mapperRes
     }
+
+
+
 }
 export default FilterSwab

@@ -25,7 +25,7 @@ export const filterSwabsQuerySchema = yup.object({
 
     operatorId: yup
         .string()
-        // .uuid('operatorId deve ser um UUID válido')
+        // .uuid('operatorId deve ser um UUID válido') //mudar quando criar operador validos
         .optional(),
 
     type: yup

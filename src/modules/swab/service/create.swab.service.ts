@@ -33,19 +33,19 @@ class CreateSwab {
             }
         }
 
-        const swabHistory = await this.getSwabHistory(validatedTanks, payload)
-
+        const swabHistory: SwabHistoryByTank = await this.getSwabHistory(validatedTanks, payload)
         const nextSwab = verifyNextSwab(swabHistory)
 
         return await this.createSwabs(
             validatedTanks,
             nextSwab.result,
             nextSwab.pending,
-            payload
+            payload,
+            swabHistory
         )
     }
 
-    private async createSwabs(validatedTanks: validateTanks, swabTypes: Record<string, SwabCheckType>, pendingSwabs: PendingSwab[], payload: MyJwtPayload): Promise<CreateResponses> {
+    private async createSwabs(validatedTanks: validateTanks, swabTypes: Record<string, SwabCheckType>, pendingSwabs: PendingSwab[], payload: MyJwtPayload, swabHistory: SwabHistoryByTank): Promise<CreateResponses> {
 
         const createdSwabs = []
 
@@ -63,6 +63,11 @@ class CreateSwab {
 
             const swabType = swabTypes[tank.name]
 
+            const swabsOfTank: Swab[] = swabHistory[tank.name]
+
+            const lastFaucet: string = swabsOfTank.length ?
+                swabsOfTank[0].faucetCode : 'N/D' //Caso não exista historico no tank defino a ultima torneira como NOT DEFINED
+
             const nextSequence: number = await this.swabSequenceRepository.nextSequence(payload.companyId, prefix)
 
             const internalCode: string = generateInternalCode(nextSequence)
@@ -71,10 +76,12 @@ class CreateSwab {
                 tank.id,
                 swabType,
                 payload.companyId,
-                internalCode
+                internalCode,
+                lastFaucet
             )
 
             createdSwabs.push(swab)
+
         }
 
         const createdSwabResponses: SwabsResponses[] =
@@ -129,5 +136,7 @@ class CreateSwab {
         return Object.fromEntries(entries)
     }
 }
+
+
 
 export default CreateSwab

@@ -21,6 +21,9 @@ export class Swab {
     @Column('varchar', { nullable: true, length: 50 })
     faucetCode: string
 
+    @Column('varchar', { nullable: true, length: 50 })
+    lastFaucetTank: string
+    
     @Column({ default: false })
     isCancelled: boolean
 

@@ -47,7 +47,8 @@ const cancelSwab = new CancelSwab(
 )
 
 const filterSwab = new FilterSwab(
-    swabFilterRepository
+    swabFilterRepository,
+    swabRepository
 )
 
 const swabService = new SwabService(

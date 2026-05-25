@@ -5,6 +5,8 @@ export interface SwabResponseDTO {
 
     faucetCode: string
 
+    lastFaucetTank: string |  null
+
     isCancelled: boolean
 
     cancelledAt: Date | null

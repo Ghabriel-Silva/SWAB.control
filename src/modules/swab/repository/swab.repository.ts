@@ -18,10 +18,12 @@ class SwabRepository {
         tankId: string,
         type: SwabCheckType,
         companyId: string,
-        internalCode: string
+        internalCode: string,
+        lastFaucet: string
     ) => {
         const swab = this.swabRepository.create({
             internalCode,
+            lastFaucetTank: lastFaucet,
             tank: {
                 id: tankId
             },
@@ -152,7 +154,7 @@ class SwabRepository {
             order: {
                 createdAt: "DESC"
             },
-            take: frequencyATP
+            take: frequencyATP || 1
         })
     }
 }
