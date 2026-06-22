@@ -18,7 +18,7 @@ export const filterSwabsQuerySchema = yup.object({
         .max(100, 'limit deve ser no máximo 100')
         .optional(),
 
-    tankId: yup
+    locationId: yup
         .string()
         .uuid('tankId deve ser um UUID válido')
         .optional(),

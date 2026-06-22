@@ -10,14 +10,13 @@ import { Operator } from "./entities/Operator"
 import { OperatorPosition } from "./entities/OperatorPosition"
 import { Swab } from "./entities/Swab"
 import { SwabCheck } from "./entities/SwabCheck"
-import { Tank } from "./entities/Tank"
-
-//importando migrations
-import {CreateCompany1776092268839 } from "./migrations/1776092268839-CreateCompany"
-import {CreatedUser1776172843611} from "./migrations/1776172843611-CreatedUser"
-import {CreatColumns1776289762426} from "./migrations/1776289762426-CreatColumns"
+import { Location } from "./entities/Location"
 import { SwabSequence } from "./entities/SwabSequence"
 
+//importando migrations
+import { CreateCompany1776092268839 } from "./migrations/1776092268839-CreateCompany"
+import { CreatedUser1776172843611 } from "./migrations/1776172843611-CreatedUser"
+import { CreatColumns1776289762426 } from "./migrations/1776289762426-CreatColumns"
 
 export const AppDataSource = new DataSource({
     type: process.env.DB_TYPE as any,
@@ -28,11 +27,11 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
-    entities: [Company, User, Laboratory, Operator, OperatorPosition, Swab, SwabCheck, Tank, SwabSequence],
+    entities: [Company, User, Laboratory, Operator, OperatorPosition, Swab, SwabCheck, Location, SwabSequence],
     migrations: [
         CreateCompany1776092268839, //Cria Company
         CreatedUser1776172843611, //Cria usuário e relations com company
-        CreatColumns1776289762426 //Migration cria todas outra tabelas do sistema
+        CreatColumns1776289762426, //Migration cria todas outra tabelas do sistema
     ],
     subscribers: [],
 })

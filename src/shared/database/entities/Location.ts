@@ -2,8 +2,8 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { Company } from "./Company";
 import { Swab } from "./Swab";
 
-@Entity('tank')
-export class Tank {
+@Entity('location')
+export class Location {
     @PrimaryGeneratedColumn('uuid')
     id: string
 
@@ -25,10 +25,10 @@ export class Tank {
     @UpdateDateColumn()
     updatedAt: Date
 
-    @ManyToOne(() => Company, company => company.tanks)
+    @ManyToOne(() => Company, company => company.locations)
     @JoinColumn({ name: 'companyId' })
     company: Company
 
-    @OneToMany(() => Swab, swab => swab.tank)
+    @OneToMany(() => Swab, swab => swab.location)
     swabs: Swab[]
 }

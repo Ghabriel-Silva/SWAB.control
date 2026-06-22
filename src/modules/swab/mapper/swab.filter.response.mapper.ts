@@ -22,16 +22,18 @@ export class SwabResponseMapper {
 
             updatedAt: swab.updatedAt,
 
-            lastFaucetTank: swab.lastFaucetTank,
+            lastFaucetLocation: swab.lastFaucetLocation,
+
+            batch: swab.check.batch,
 
             operator: swab.operator && {
                 id: swab.operator.id,
                 name: swab.operator.name
             },
 
-            tank: swab.tank && {
-                id: swab.tank.id,
-                name: swab.tank.name
+            location: swab.location && {
+                id: swab.location.id,
+                name: swab.location.name
             },
 
             check: swab.check && {

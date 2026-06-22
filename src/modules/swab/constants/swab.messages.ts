@@ -3,11 +3,11 @@ export const SWAB_MESSAGES = {
         SUCCESS: 'Processamento concluído',
         NO_SWABS_CREATED: 'Nenhum swab foi criado',
 
-        PENDING_SWAB: (tank: string) =>
-            `O tank ${tank} possui swab pendente`,
+        PENDING_SWAB: (location: string) =>
+            `A localização ${location} possui swab pendente`,
 
-        PENDING_CHECK: (tank: string) =>
-            `O tank ${tank} possui swab sem check`,
+        PENDING_CHECK: (location: string) =>
+            `A localização ${location} possui swab sem check`,
     },
 
     UPDATE: {
@@ -27,8 +27,8 @@ export const SWAB_MESSAGES = {
         ATP_TO_VISUAL_JUSTIFICATION:
             'Swab ATP não pode ser mudado para swab do tipo VISUAL sem justificativa, justifique de forma clara o motivo da mudança',
 
-        UPDATE_ERROR: (tank: string) =>
-            `Não foi possível atualizar o swab do tank ${tank}`
+        UPDATE_ERROR: (location: string) =>
+            `Não foi possível atualizar o swab do localização ${location}`
     },
 
     DELETE: {

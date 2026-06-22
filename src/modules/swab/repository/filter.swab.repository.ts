@@ -3,7 +3,6 @@ import { Swab } from "../../../shared/database/entities/Swab"
 import { AppDataSource } from "../../../shared/database/data-source"
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema"
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
-import { SwabFilterResponse } from "../dto/types/filter/swab.filter.response"
 import { RepositoryResponse } from "../dto/types/filter/respository.response"
 
 
@@ -20,7 +19,7 @@ class SwabFilterRepository {
         const query = this.swabFilterRepository
             .createQueryBuilder('swab')
             .leftJoinAndSelect('swab.check', 'check')
-            .leftJoinAndSelect('swab.tank', 'tank')
+            .leftJoinAndSelect('swab.location', 'location')
             .leftJoinAndSelect('swab.operator', 'operator')
             .where('swab.company =  :companyId', { companyId: payloud.companyId })
             .orderBy('swab.createdAt', order)
@@ -32,9 +31,9 @@ class SwabFilterRepository {
                 operatorId: filters.operatorId
             })
         }
-        if (filters.tankId) {
-            query.andWhere('tank.id = :tankId', {
-                tankId: filters.tankId
+        if (filters.locationId) {
+            query.andWhere('location.id = :locationId', {
+                locationId: filters.locationId
             })
         }
         if (filters.result) {

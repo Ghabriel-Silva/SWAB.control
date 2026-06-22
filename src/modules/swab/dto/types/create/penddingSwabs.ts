@@ -1,5 +1,5 @@
 export interface PendingSwab {
-    tank: string
+    location: string
     swabId: string
     message: string
 }

@@ -3,6 +3,7 @@ import { UserRole } from "../../../modules/user/domain/role.enum";
 
 export interface MyJwtPayload extends JwtPayload {
     id: string;
+    userName:string;
     email: string;
     role: UserRole;
     isActive: boolean;

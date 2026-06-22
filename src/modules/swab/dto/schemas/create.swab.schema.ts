@@ -1,7 +1,7 @@
 import * as yup from "yup"
 
 export const createSwabSchema = yup.object({
-    tank: yup
+    location: yup
         .array()
         .of(
             yup

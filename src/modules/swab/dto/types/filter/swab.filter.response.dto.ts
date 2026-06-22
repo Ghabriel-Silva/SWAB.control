@@ -5,13 +5,15 @@ export interface SwabResponseDTO {
 
     faucetCode: string
 
-    lastFaucetTank: string |  null
+    lastFaucetLocation: string | null
 
     isCancelled: boolean
 
     cancelledAt: Date | null
 
     cancelReason: string | null
+
+    batch: string | null
 
     createdAt: Date
 
@@ -22,7 +24,7 @@ export interface SwabResponseDTO {
         name: string
     }
 
-    tank?: {
+    location?: {
         id: string
         name: string
     }

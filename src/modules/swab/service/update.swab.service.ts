@@ -23,7 +23,7 @@ class UpdateSwab {
 
         await this.validateOperatorExists(payload, data)
 
-        await this.validateFaucetCodeSequence(swabId, payload, data, swabExists.tank.id)
+        await this.validateFaucetCodeSequence(swabId, payload, data, swabExists.location.id)
 
         await this.validateAtpLimit(swabExists, data)
 
@@ -100,7 +100,7 @@ class UpdateSwab {
 
     validateFaucetCodeSequence = async (swabId: string, payload: MyJwtPayload, data: UpdateSwabType, tankId: string) => {
 
-        const lastFaucet = await this.swabRepository.findLastByTank(
+        const lastFaucet = await this.swabRepository.findLastByLocation(
             tankId,
             payload.companyId,
             swabId
@@ -124,7 +124,7 @@ class UpdateSwab {
     validateAtpLimit = async (swabExists: Swab, data: UpdateSwabType) => {
 
         const atpLimit =
-            swabExists.tank.atpLimit
+            swabExists.location.atpLimit
             ?? swabExists.company.defaultAtpLimit
 
         if (
@@ -155,12 +155,12 @@ class UpdateSwab {
 
             throw new AppError(
                 404,
-                SWAB_MESSAGES.UPDATE.UPDATE_ERROR(swabExists.tank.name)
+                SWAB_MESSAGES.UPDATE.UPDATE_ERROR(swabExists.location.name)
             )
         }
 
         return {
-            tankName: swabExists.tank.name,
+            locationName: swabExists.location.name,
             swabId: swabExists.id,
             internalCode: swabExists.internalCode
                 ? swabExists.internalCode

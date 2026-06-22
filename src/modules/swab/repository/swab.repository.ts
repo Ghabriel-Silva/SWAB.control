@@ -15,7 +15,7 @@ class SwabRepository {
     }
 
     create = async (
-        tankId: string,
+        locationId: string,
         type: SwabCheckType,
         companyId: string,
         internalCode: string,
@@ -23,9 +23,9 @@ class SwabRepository {
     ) => {
         const swab = this.swabRepository.create({
             internalCode,
-            lastFaucetTank: lastFaucet,
-            tank: {
-                id: tankId
+            lastFaucetLocation: lastFaucet,
+            location: {
+                id: locationId
             },
             company: {
                 id: companyId
@@ -34,6 +34,7 @@ class SwabRepository {
                 type,
                 result: SwabCheckResult.PENDING,
             },
+
         })
 
         return await this.swabRepository.save(swab)
@@ -102,23 +103,23 @@ class SwabRepository {
                 }
             },
             relations: {
-                tank: true,
+                location: true,
                 company: true,
                 check: true
             }
         })
     }
 
-    findLastByTank = async (
-        tankId: string,
+    findLastByLocation = async (
+        LocationId: string,
         companyId: string,
         swabId: string
     ) => {
 
         return await this.swabRepository.findOne({
             where: {
-                tank: {
-                    id: tankId
+                location: {
+                    id: LocationId
                 },
                 id: Not(swabId),
                 company: {
@@ -132,7 +133,7 @@ class SwabRepository {
     }
 
     history = async (
-        tankId: string,
+        locationId: string,
         companyId: string,
         frequencyATP: number
     ) => {
@@ -140,8 +141,8 @@ class SwabRepository {
         return await this.swabRepository.find({
             where: {
                 isCancelled: false,
-                tank: {
-                    id: tankId,
+                location: {
+                    id: locationId,
                     company: {
                         id: companyId
                     }
@@ -149,7 +150,7 @@ class SwabRepository {
             },
             relations: {
                 check: true,
-                tank: true
+                location: true
             },
             order: {
                 createdAt: "DESC"

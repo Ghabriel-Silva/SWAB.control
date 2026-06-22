@@ -7,37 +7,36 @@ import { verifyNextSwab } from "../domain/verifyNextSwab"
 import { CreateSwabType } from "../dto/schemas/create.swab.schema"
 import { CreateResponses } from "../dto/types/create/createResponse"
 import { PendingSwab } from "../dto/types/create/penddingSwabs"
-import { SwabHistoryByTank } from "../dto/types/create/swabHistoryByTank"
+import { SwabHistoryByLocation } from "../dto/types/create/swabHistoryByTank"
 import { SwabsResponses } from "../dto/types/create/swabsResponses"
-import { validateTanks } from "../dto/types/create/validateTanks"
+import { validateLocation } from "../dto/types/create/validateLocation"
 import SwabRepository from "../repository/swab.repository"
-import TankRepository from "../repository/tank.repository"
 import SwabSequenceRepository from "../repository/swab-sequence.repository"
+import LocationRepository from "../repository/tank.repository"
 
 class CreateSwab {
     constructor(
         private swabRepository: SwabRepository,
-        private tankRepository: TankRepository,
+        private locationRepository: LocationRepository,
         private swabSequenceRepository: SwabSequenceRepository
     ) { }
 
     async execute(data: CreateSwabType, payload: MyJwtPayload): Promise<CreateResponses> {
 
-        const validatedTanks = await this.validateExistingTanks(data, payload)
-
-        if (!validatedTanks.validTanks.length) {
+        const validateLocation = await this.validateExistingLocation(data, payload)
+        if (!validateLocation.validLocations.length) {
             return {
-                invalidTanks: validatedTanks.invalidTanks,
+                invalidLocation: validateLocation.invalidLocation,
                 pending: [],
                 swabsCreate: []
             }
         }
 
-        const swabHistory: SwabHistoryByTank = await this.getSwabHistory(validatedTanks, payload)
+        const swabHistory: SwabHistoryByLocation = await this.getSwabHistory(validateLocation, payload)
         const nextSwab = verifyNextSwab(swabHistory)
 
         return await this.createSwabs(
-            validatedTanks,
+            validateLocation,
             nextSwab.result,
             nextSwab.pending,
             payload,
@@ -45,91 +44,92 @@ class CreateSwab {
         )
     }
 
-    private async createSwabs(validatedTanks: validateTanks, swabTypes: Record<string, SwabCheckType>, pendingSwabs: PendingSwab[], payload: MyJwtPayload, swabHistory: SwabHistoryByTank): Promise<CreateResponses> {
+    private async createSwabs(validateLocation: validateLocation, swabTypes: Record<string, SwabCheckType>, pendingSwabs: PendingSwab[], payload: MyJwtPayload, swabHistory: SwabHistoryByLocation): Promise<CreateResponses> {
 
         const createdSwabs = []
 
         const prefix = prefixInternalCode()
 
-        const pendingTankNames = new Set(
-            pendingSwabs.map(swab => swab.tank)
+        const pendingLocationNames = new Set(
+            pendingSwabs.map(swab => swab.location)
         )
 
-        for (const tank of validatedTanks.validTanks) {
+        for (const location of validateLocation.validLocations) {
 
-            if (pendingTankNames.has(tank.name)) {
+            if (pendingLocationNames.has(location.name)) {
                 continue
             }
 
-            const swabType = swabTypes[tank.name]
+            const swabType = swabTypes[location.name]
 
-            const swabsOfTank: Swab[] = swabHistory[tank.name]
+            const swabsOfLocation: Swab[] = swabHistory[location.name]
 
-            const lastFaucet: string = swabsOfTank.length ?
-                swabsOfTank[0].faucetCode : 'N/D' //Caso não exista historico no tank defino a ultima torneira como NOT DEFINED
+            const lastFaucet: string = swabsOfLocation.length ?
+                swabsOfLocation[0].faucetCode : 'N/D' //Caso não exista historico no tank defino a ultima torneira como NOT DEFINED
 
             const nextSequence: number = await this.swabSequenceRepository.nextSequence(payload.companyId, prefix)
 
             const internalCode: string = generateInternalCode(nextSequence)
 
             const swab = await this.swabRepository.create(
-                tank.id,
+                location.id,
                 swabType,
                 payload.companyId,
                 internalCode,
                 lastFaucet
             )
-
-            createdSwabs.push(swab)
+            createdSwabs.push({
+                swab,
+                tankLocation: location.name
+            })
 
         }
 
         const createdSwabResponses: SwabsResponses[] =
-            createdSwabs.map(swab => ({
-                swabId: swab.id,
-                internalCodeSwab: swab.internalCode,
-                tankName: swab.tank.name,
-                typeAtp: swab.check.type
+            createdSwabs.map(item => ({
+                swabId: item.swab.id,
+                internalCodeSwab: item.swab.internalCode,
+                locationName: item.tankLocation,
+                typeAtp: item.swab.check.type
             }))
 
         return {
-            invalidTanks: validatedTanks.invalidTanks,
+            invalidLocation: validateLocation.invalidLocation,
             pending: pendingSwabs,
             swabsCreate: createdSwabResponses
         }
     }
 
-    private async validateExistingTanks(data: CreateSwabType, payload: MyJwtPayload): Promise<validateTanks> {
-
-        const foundTanks = await this.tankRepository.exists(
-            data.tank.map(i => i.toUpperCase()),
+    private async validateExistingLocation(data: CreateSwabType, payload: MyJwtPayload): Promise<validateLocation> {
+        const foundLocation = await this.locationRepository.exists(
+            data.location.map(i => i.toUpperCase()),
             payload.companyId
         )
 
-        const foundNames = foundTanks.map(tank => tank.name)
+        const foundNames = foundLocation.map(location => location.name)
 
-        const invalidTanks = data.tank.filter(
+        const invalidLocation = data.location.filter(
             name => !!name && !foundNames.includes(name)
         )
 
         return {
-            validTanks: foundTanks,
-            invalidTanks
+            validLocations: foundLocation,
+            invalidLocation
         }
     }
 
-    private async getSwabHistory(validatedTanks: validateTanks, payload: MyJwtPayload): Promise<SwabHistoryByTank> {
+    private async getSwabHistory(validateLocation: validateLocation, payload: MyJwtPayload): Promise<SwabHistoryByLocation> {
 
         const entries = await Promise.all(
-            validatedTanks.validTanks.map(async (tank) => {
+            validateLocation.validLocations.map(async (location) => {
 
                 const swabs = await this.swabRepository.history(
-                    tank.id,
+                    location.id,
                     payload.companyId,
-                    tank.atpFrequency
+                    location.atpFrequency
                 )
 
-                return [tank.name, swabs] as [string, Swab[]]
+                return [location.name, swabs] as [string, Swab[]]
             })
         )
 

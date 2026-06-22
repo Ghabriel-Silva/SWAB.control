@@ -20,12 +20,13 @@ import UpdateSwab from "./service/update.swab.service";
 import CancelSwab from "./service/status.swab.service";
 import FilterSwab from "./service/filter.swab.service";
 import SwabFilterRepository from "./repository/filter.swab.repository";
+import LocationRepository from "./repository/tank.repository";
 
 const swabRoutes = Router()
 
 /* repositories */
 const swabRepository = new SwabRepository()
-const tankRepository = new TankRepository()
+const locationRepository = new LocationRepository()
 const operatorRepository = new OperatorRepository()
 const swabSequenceRepository = new SwabSequenceRepository()
 const swabFilterRepository = new SwabFilterRepository()
@@ -33,7 +34,7 @@ const swabFilterRepository = new SwabFilterRepository()
 /* services */
 const createSwab = new CreateSwab(
     swabRepository,
-    tankRepository,
+    locationRepository,
     swabSequenceRepository
 )
 
@@ -48,7 +49,6 @@ const cancelSwab = new CancelSwab(
 
 const filterSwab = new FilterSwab(
     swabFilterRepository,
-    swabRepository
 )
 
 const swabService = new SwabService(

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { Operator } from "./Operator";
-import { Tank } from "./Tank";
+import { Location } from "./Location";
 import { SwabCheck } from "./SwabCheck";
 import { Company } from "./Company";
 
@@ -15,15 +15,15 @@ export class Swab {
     @ManyToOne(() => Operator, operator => operator.swabs)
     operator: Operator;
 
-    @ManyToOne(() => Tank, tank => tank.swabs)
-    tank: Tank;
+    @ManyToOne(() => Location, location => location.swabs)
+    location: Location;
 
     @Column('varchar', { nullable: true, length: 50 })
     faucetCode: string
 
     @Column('varchar', { nullable: true, length: 50 })
-    lastFaucetTank: string
-    
+    lastFaucetLocation: string
+
     @Column({ default: false })
     isCancelled: boolean
 

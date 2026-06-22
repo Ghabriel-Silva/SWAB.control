@@ -1,22 +1,23 @@
 import { In, Repository } from "typeorm";
 import { AppDataSource } from "../../../shared/database/data-source";
-import { Tank } from "../../../shared/database/entities/Tank";
+import { Location } from "../../../shared/database/entities/Location";
 
-class TankRepository {
-    private tankRepository: Repository<Tank>
+
+class LocationRepository {
+    private locationRepository: Repository<Location>
 
     constructor() {
-        this.tankRepository = AppDataSource.getRepository(Tank)
+        this.locationRepository = AppDataSource.getRepository(Location)
     }
 
     exists = async (
-        tanks: string[],
+        locations: string[],
         companyId: string
-    ): Promise<Tank[]> => {
+    ): Promise<Location[]> => {
 
-        return await this.tankRepository.find({
+        return await this.locationRepository.find({
             where: {
-                name: In(tanks),
+                name: In(locations),
                 company: {
                     id: companyId
                 }
@@ -27,9 +28,9 @@ class TankRepository {
     findById = async (
         tankId: string,
         companyId: string
-    ): Promise<Tank | null> => {
+    ): Promise<Location | null> => {
 
-        return await this.tankRepository.findOne({
+        return await this.locationRepository.findOne({
             where: {
                 id: tankId,
                 company: {
@@ -40,4 +41,4 @@ class TankRepository {
     }
 }
 
-export default TankRepository
+export default LocationRepository

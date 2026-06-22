@@ -12,9 +12,7 @@ import SwabRepository from "../repository/swab.repository"
 
 class FilterSwab {
     constructor(
-        private swabFilterRepository: SwabFilterRepository,
-        private swabRepository: SwabRepository
-    ) {}
+        private swabFilterRepository: SwabFilterRepository) {}
     execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType): Promise<SwabFilterResponse> => {
         const { startDate, endDate }: DateFilter = this.validateDate(filterSwabs.startDate, filterSwabs.endDate)
 
@@ -26,7 +24,7 @@ class FilterSwab {
 
         filterSwabs.page = page
         filterSwabs.limit = limit
-       
+
 
         const resp: RepositoryResponse = await this.swabFilterRepository.filter(filterSwabs, payload)
 
@@ -80,8 +78,5 @@ class FilterSwab {
         } as DateFilter
 
     }
-
-
-
 }
 export default FilterSwab

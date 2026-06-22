@@ -4,13 +4,14 @@ import { authMessages } from "../constants/auth.messages";
 import AuthService from "../service/auth.service";
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
 import { userSafe } from "../dto/types/userSafe";
+import { LoginResponse } from "../dto/types/login.response";
 
 class AuthController {
     constructor(private authService: AuthService) { }
 
     login = async (req: Request, res: Response) => {
-        const result = await this.authService.login(req.body)
-
+        const result:LoginResponse = await this.authService.login(req.body)
+        // console.log(result)
         res.json(
             successResponse(result, authMessages.login.success)
         )

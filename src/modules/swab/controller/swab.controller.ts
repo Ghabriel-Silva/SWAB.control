@@ -7,13 +7,11 @@ import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
 import { CancelResponse } from "../dto/types/cancel/cancelResponse";
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema";
 
-
-
 type Params = {
     id: string
 }
 class SwabController {
-    constructor(private swabService: SwabService) { }
+    constructor(private swabService: SwabService) {}
 
     create = async (req: Request, res: Response) => {
         const payloud = req.user as MyJwtPayload

@@ -1,10 +1,11 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./User";
 import { Laboratory } from "./Laboratory";
 import { OperatorPosition } from "./OperatorPosition";
 import { Operator } from "./Operator";
-import { Tank } from "./Tank";
+import { Location } from "./Location";
 import { Swab } from "./Swab";
+import { AnalisysCategory } from "./AnalysisCategory";
 
 @Entity('company')
 export class Company {
@@ -49,8 +50,14 @@ export class Company {
     @OneToMany(() => Operator, operator => operator.company)
     operators: Operator[]
 
+    //Relação com Categorias de analises
+    @OneToMany(() => AnalisysCategory, category => category.company)
+    analysesCategory: AnalisysCategory[]
+
+    
 
 
-    @OneToMany(() => Tank, tank => tank.company)
-    tanks: Tank[]
+
+    @OneToMany(() => Location, location => location.company)
+    locations: Location[]
 }

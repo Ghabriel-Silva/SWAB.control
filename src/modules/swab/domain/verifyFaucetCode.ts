@@ -1,25 +1,25 @@
-import { SwabHistoryByTank } from "../dto/types/create/swabHistoryByTank";
+import { SwabHistoryByLocation } from "../dto/types/create/swabHistoryByTank"
 
 
-export function verifyFaucetCode(historySwabs: SwabHistoryByTank) {
-    //Centraliza a torneira do tank 
-    const tankTorn: Record<string, string> = {}
+export function verifyFaucetCode(historySwabs: SwabHistoryByLocation) {
+    //Centraliza a torneira da localização se tiver
+    const locationFaucet: Record<string, string> = {}
 
-    for (const [tank, swabInfo] of Object.entries(historySwabs)) {
+    for (const [location, swabInfo] of Object.entries(historySwabs)) {
 
         const lastTorn = swabInfo[0]
 
         if (!lastTorn) {
-            tankTorn[tank] = 'Nenhum Swab Encontrado, a torneira não foi definida'
+            locationFaucet[location] = 'Nenhum Swab Encontrado, a torneira não foi definida'
             continue
         }
 
         if (!lastTorn.faucetCode) {
-            tankTorn[tank] = 'Torneira não definida'
+            locationFaucet[location] = 'Torneira não definida'
             continue
         }
-        tankTorn[tank] = lastTorn.faucetCode
+        locationFaucet[location] = lastTorn.faucetCode
     }
 
-    return tankTorn
+    return locationFaucet
 }
