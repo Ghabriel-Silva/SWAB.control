@@ -22,7 +22,7 @@ export const SWAB_MESSAGES = {
             'Informe uma justificativa para reutilizar a mesma torneira.',
 
         ATP_LIMIT_OBSERVATION:
-            'Observação é obrigatória quando o ATP é maior que o limite definido',
+            'Você não pode aprovar um Swab com o ATP maior que a especificação',
 
         ATP_TO_VISUAL_JUSTIFICATION:
             'Swab ATP não pode ser mudado para swab do tipo VISUAL sem justificativa, justifique de forma clara o motivo da mudança',

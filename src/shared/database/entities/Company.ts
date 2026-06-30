@@ -5,8 +5,6 @@ import { OperatorPosition } from "./OperatorPosition";
 import { Operator } from "./Operator";
 import { Location } from "./Location";
 import { Swab } from "./Swab";
-import { AnalisysCategory } from "./AnalysisCategory";
-
 @Entity('company')
 export class Company {
     @PrimaryGeneratedColumn('uuid')
@@ -49,14 +47,6 @@ export class Company {
     //relation Operator
     @OneToMany(() => Operator, operator => operator.company)
     operators: Operator[]
-
-    //Relação com Categorias de analises
-    @OneToMany(() => AnalisysCategory, category => category.company)
-    analysesCategory: AnalisysCategory[]
-
-    
-
-
 
     @OneToMany(() => Location, location => location.company)
     locations: Location[]

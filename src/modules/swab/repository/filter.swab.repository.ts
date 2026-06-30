@@ -31,6 +31,7 @@ class SwabFilterRepository {
                 operatorId: filters.operatorId
             })
         }
+
         if (filters.locationId) {
             query.andWhere('location.id = :locationId', {
                 locationId: filters.locationId

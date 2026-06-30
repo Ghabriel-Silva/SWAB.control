@@ -10,8 +10,6 @@ import {
 import { Swab } from './Swab'
 import { SwabCheckType } from '../../../modules/swab/domain/swabCheck.enum';
 import { SwabCheckResult } from '../../../modules/swab/domain/swabResult.enum';
-import { AnalysisResult } from './AnalysisResult';
-
 
 @Entity('swab_checks')
 export class SwabCheck {
@@ -52,12 +50,9 @@ export class SwabCheck {
     @Column({ nullable: true, length: 250 })
     sameFaucetJustification: string
 
+    @Column({ nullable: true, length: 250 })
+    UpdateSwabJustification: string
+
     @CreateDateColumn()
     createdAt: Date;
-
-    @OneToMany(
-        () => AnalysisResult,
-        analysis => analysis.check
-    )
-    analysesResults: AnalysisResult[];
 }

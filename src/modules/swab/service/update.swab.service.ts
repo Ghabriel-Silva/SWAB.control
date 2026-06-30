@@ -7,6 +7,7 @@ import { SwabCheckType } from "../domain/swabCheck.enum";
 import { SWAB_MESSAGES } from "../constants/swab.messages";
 import SwabRepository from "../repository/swab.repository";
 import OperatorRepository from "../repository/operator.repository";
+import { SwabCheckResult } from "../domain/swabResult.enum";
 
 class UpdateSwab {
     constructor(
@@ -58,23 +59,24 @@ class UpdateSwab {
 
         if (data.performedType == null) return
 
+        //Se o tipo do cadastro do swab no banco for atp ou micro retorna true
         const validationsBdType = ATP_REQUIRED_TYPES.includes(
             swabExists.check.type
         )
 
+        //se o tipo que o user me mandar for Visual, ou seja ele esta tentando mudar o tipo de swab
         const validationsUserType =
             data.performedType === SwabCheckType.VISUAL
 
         const validationUpdateSwab =
             validationsBdType &&
             validationsUserType &&
-            !data.observation?.trim()
+            !data.updateSwabJustification?.trim()
 
         if (validationUpdateSwab) {
-
             throw new AppError(
                 400,
-                SWAB_MESSAGES.UPDATE.SAME_FAUCET_JUSTIFICATION
+                SWAB_MESSAGES.UPDATE.ATP_TO_VISUAL_JUSTIFICATION
             )
         }
     }
@@ -131,7 +133,7 @@ class UpdateSwab {
             atpLimit != null &&
             data.valueAtp != null &&
             data.valueAtp > atpLimit &&
-            !data.observation?.trim()
+            data.result === SwabCheckResult.APPROVED
         ) {
 
             throw new AppError(

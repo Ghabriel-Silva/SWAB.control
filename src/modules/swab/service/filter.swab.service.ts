@@ -7,8 +7,6 @@ import { SwabResponseDTO } from "../dto/types/filter/swab.filter.response.dto"
 import { SwabResponseMapper } from "../mapper/swab.filter.response.mapper"
 import SwabFilterRepository from "../repository/filter.swab.repository"
 import { addDays, subDays, startOfDay } from "date-fns";
-import SwabRepository from "../repository/swab.repository"
-
 
 class FilterSwab {
     constructor(

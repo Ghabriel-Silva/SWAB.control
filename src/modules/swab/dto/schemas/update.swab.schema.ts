@@ -94,7 +94,15 @@ export const updateSwabSchema = yup.object({
         .string()
         .max(250, 'O maximo de caracteres é 250')
         .transform(removeBlankSpace)
-        .nullable()
+        .nullable(),
+
+    updateSwabJustification: yup
+        .string()
+        .max(250, 'O maximo de caracteres é 250')
+        .trim()
+        .nullable(),
+
+
 })
 
 export type UpdateSwabType = yup.InferType<typeof updateSwabSchema>
