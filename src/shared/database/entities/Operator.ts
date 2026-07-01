@@ -13,6 +13,9 @@ export class Operator {
     @Column('varchar', { length: 50 })
     name: string
 
+    @Column('boolean', { default: true })
+    isActive: boolean
+    
     @CreateDateColumn()
     createdAt: Date
 
@@ -25,7 +28,7 @@ export class Operator {
     position: OperatorPosition
 
     //Operador pertence a company e aponta para ela 
-    @ManyToOne(() => Company, company => company.operators) 
+    @ManyToOne(() => Company, company => company.operators)
     @JoinColumn({ name: 'companyId' })
     company: Company
 
