@@ -7,12 +7,14 @@ import { asyncHandler } from "../../shared/http/asyncHandler";
 import UserController from "./controller/user.controller";
 import UserService from "./service/user.service";
 import CreateUser from "./service/create.user.service";
+import GetUser from "./service/get.user.service";
 
 const userRoutes = Router()
 
 const userRepository = new UserRepository()
 const createUser = new CreateUser(userRepository)
-const userService = new UserService(createUser)
+const getUser = new GetUser(userRepository)
+const userService = new UserService(createUser, getUser)
 const userController = new UserController(userService)
 
 userRoutes.get('/',

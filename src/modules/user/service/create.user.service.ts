@@ -3,9 +3,10 @@ import UserRepository from "../repository/user.repository";
 
 
 class CreateUser {
-    constructor(private userRepository: UserRepository){}
+    constructor(private userRepository: UserRepository) { }
 
     execute: () => {
+        
 
     }
 }

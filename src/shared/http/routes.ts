@@ -2,11 +2,13 @@ import { Router } from "express";
 import authRoutes from "../../modules/auth/auth.routes"
 import userRoutes from "../../modules/user/user.routes";
 import swabRoutes from "../../modules/swab/swab.routes";
+import operatorRoutes from "../../modules/operator/operator.routes";
 
 const routes = Router()
 
 routes.use('/auth', authRoutes) //Rota de autenticação e rotas/métodos
-routes.use('/user', userRoutes ) //Rota de metodos para usuários
+routes.use('/user', userRoutes) //Rota de metodos para usuários
 routes.use('/swab', swabRoutes) //Rota responsavel pelos métodos de swab (create, update, delete, read)
+routes.use('/operator', operatorRoutes) //Rotas responsavel por toda parte que se referece a operators
 
 export default routes

@@ -20,7 +20,7 @@ const authorizeRoles = (...allowedRoles: UserRole[]) => {
         if(!allowedRoles.includes(userRole)){
             throw new AppError(403, "Sem permição")
         }
-        next();
+        next()
     }
 };
 
