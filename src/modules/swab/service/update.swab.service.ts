@@ -55,6 +55,7 @@ class UpdateSwab {
         const ATP_REQUIRED_TYPES = [
             SwabCheckType.ATP,
             SwabCheckType.MICRO
+
         ]
 
         if (data.performedType == null) return
@@ -108,6 +109,7 @@ class UpdateSwab {
             swabId
         )
 
+
         const isSameFaucet: boolean =
             lastFaucet?.faucetCode?.toUpperCase() ===
             data.faucetCode.toUpperCase()
@@ -146,6 +148,20 @@ class UpdateSwab {
     }
 
     updateSwab = async (dataToUpdate: Partial<Swab>, swabId: string, payload: MyJwtPayload, swabExists: Swab) => {
+        // se o tipo de swab que recebo for diferente do tipo que tenho no banco passo o valor anterior real do swab para lastswab e depois e impremento o novo para "type" dessa forma consigo ter o tipode swab original salvo
+        if (dataToUpdate.check?.type !== swabExists.check.type) {
+            dataToUpdate.check!.lastType = swabExists.check.type
+        }
+
+        //Aqui podera ser feito apenas uma mudança de swab isso porque dentro da regra de negócio, a troca de tipo de swab dificilmente acontece e mais de uma mudança para o mesmo não pode existirc
+        const valueIsSame = dataToUpdate.check?.type === swabExists.check.type
+
+        if (dataToUpdate.check?.type && swabExists.check.lastType && !valueIsSame) {
+            throw new AppError(
+                409,
+                SWAB_MESSAGES.UPDATE.NOT_UPDATED_SWAB_TYPE
+            )
+        }
 
         const updateSwab: boolean = await this.swabRepository.update(
             dataToUpdate,

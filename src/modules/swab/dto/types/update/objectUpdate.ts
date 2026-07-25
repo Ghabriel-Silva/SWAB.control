@@ -15,6 +15,9 @@ export const objectUpdate = (data: UpdateSwabType): Partial<Swab> => {
             type: data.performedType,
             result: data.result,
 
+            ...(data.lastPerformedType && {
+                lastType: data.lastPerformedType
+            }),
             ...(data.validatedAt && {
                 validatedAt: data.validatedAt
             }),
@@ -22,7 +25,7 @@ export const objectUpdate = (data: UpdateSwabType): Partial<Swab> => {
             ...(data.valueAtp !== undefined && {
                 valueAtp: data.valueAtp
             }),
-            ...(data.batch && {
+            ...(data.batch !== undefined && {
                 batch: data.batch
             }),
 
@@ -32,7 +35,11 @@ export const objectUpdate = (data: UpdateSwabType): Partial<Swab> => {
 
             ...(data.sameFaucetJustification && {
                 sameFaucetJustification: data.sameFaucetJustification
+            }),
+            ...(data.updateSwabJustification && {
+                UpdateSwabJustification: data.updateSwabJustification
             })
+
 
         } as SwabCheck
     }

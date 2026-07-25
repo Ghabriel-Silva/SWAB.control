@@ -19,7 +19,8 @@ class SwabRepository {
         type: SwabCheckType,
         companyId: string,
         internalCode: string,
-        lastFaucet: string
+        lastFaucet: string,
+        justificationlastReprovation: string 
     ) => {
         const swab = this.swabRepository.create({
             internalCode,
@@ -33,6 +34,7 @@ class SwabRepository {
             check: {
                 type,
                 result: SwabCheckResult.PENDING,
+                justificationLastReprovation: justificationlastReprovation
             },
 
         })

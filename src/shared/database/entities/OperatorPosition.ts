@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, On
 import { Operator } from "./Operator";
 import { Company } from "./Company";
 
-@Entity('operator-position')
+@Entity('operator_position')
 export class OperatorPosition {
     @PrimaryGeneratedColumn('uuid')
     id: string

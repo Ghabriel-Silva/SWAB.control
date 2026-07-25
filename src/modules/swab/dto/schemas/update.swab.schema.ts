@@ -20,6 +20,14 @@ export const updateSwabSchema = yup.object({
             "O tipo de swab deve ser VISUAL, ATP ou MICRO"
         )
         .required(),
+    lastPerformedType: yup
+        .mixed<SwabCheckType>()
+        .oneOf(
+            Object.values(SwabCheckType),
+            "O tipo de swab deve ser VISUAL, ATP ou MICRO"
+        )
+        .nullable(),
+
 
     result: yup
         .mixed<SwabCheckResult>()
@@ -41,12 +49,32 @@ export const updateSwabSchema = yup.object({
             return Number(v)
         })
         .when('performedType', ([performedType], schema) => {
+            if (performedType === SwabCheckType.VISUAL) {
+                return schema.transform(() => null).nullable()
+            }
+
             if (ATP_REQUIRED_TYPES.includes(performedType)) {
                 return schema.required(
                     'É obrigatório informar o resultado ATP para swabs ATP e MICRO'
                 )
             }
+            return schema.nullable()
+        }),
 
+    batch: yup
+        .string()
+        .max(20, 'O lote informado deve conter no máximo 20 caracteres')
+        .transform(removeBlankSpace)
+        .when('performedType', ([performedType], schema) => {
+            if (performedType === SwabCheckType.VISUAL) {
+                return schema
+                    .transform(() => null)
+                    .nullable()
+                    .default(null)
+            }
+            if (ATP_REQUIRED_TYPES.includes(performedType)) {
+                return schema.required('É obrigatório informar o lote utilizado na análise ATP')
+            }
             return schema.nullable()
         }),
 
@@ -56,16 +84,6 @@ export const updateSwabSchema = yup.object({
         .max(50, 'O código da torneira deve conter no máximo 50 caracteres')
         .required('É obrigatório informar o código da torneira utilizada'),
 
-    batch: yup
-        .string()
-        .max(20, 'O lote informado deve conter no máximo 20 caracteres')
-        .transform(removeBlankSpace)
-        .when('performedType', ([performedType], schema) => {
-            if (ATP_REQUIRED_TYPES.includes(performedType)) {
-                return schema.required('É obrigatório informar o lote utilizado na análise ATP')
-            }
-            return schema.nullable()
-        }),
 
     validatedAt: yup
         .date()
@@ -93,7 +111,7 @@ export const updateSwabSchema = yup.object({
     sameFaucetJustification: yup
         .string()
         .max(250, 'O maximo de caracteres é 250')
-        .transform(removeBlankSpace)
+        .trim()
         .nullable(),
 
     updateSwabJustification: yup
@@ -101,8 +119,6 @@ export const updateSwabSchema = yup.object({
         .max(250, 'O maximo de caracteres é 250')
         .trim()
         .nullable(),
-
-
 })
 
 export type UpdateSwabType = yup.InferType<typeof updateSwabSchema>

@@ -48,9 +48,9 @@ class SwabFilterRepository {
             })
         }
 
-        if (filters.type) {
+        if (filters.performedType) {
             query.andWhere('check.type = :type', {
-                type: filters.type
+                type: filters.performedType
             })
         }
 

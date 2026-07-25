@@ -32,8 +32,13 @@ export interface SwabResponseDTO {
     check?: {
         id: string
         type: string
+        lastType: string
         result: string
         validatedAt: Date
         valueAtp: number | null
+        sameFaucetJustification: string | null
+        updateSwabJustification: string | null
+        observation: string | null
+        justificationLastReprovation: string | null
     }
 }

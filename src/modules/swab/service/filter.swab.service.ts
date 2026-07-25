@@ -7,10 +7,13 @@ import { SwabResponseDTO } from "../dto/types/filter/swab.filter.response.dto"
 import { SwabResponseMapper } from "../mapper/swab.filter.response.mapper"
 import SwabFilterRepository from "../repository/filter.swab.repository"
 import { addDays, subDays, startOfDay } from "date-fns";
+import SwabRepository from "../repository/swab.repository"
 
 class FilterSwab {
     constructor(
-        private swabFilterRepository: SwabFilterRepository) {}
+        private swabFilterRepository: SwabFilterRepository,
+    ) { }
+
     execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType): Promise<SwabFilterResponse> => {
         const { startDate, endDate }: DateFilter = this.validateDate(filterSwabs.startDate, filterSwabs.endDate)
 
@@ -27,7 +30,7 @@ class FilterSwab {
         const resp: RepositoryResponse = await this.swabFilterRepository.filter(filterSwabs, payload)
 
         const mapperRes: SwabResponseDTO[] = SwabResponseMapper.toResponseList(resp.swabs)
-
+      
         const meta: MetaSwabFilter = {
             limit: filterSwabs.limit,
             page: filterSwabs.page,
@@ -76,5 +79,6 @@ class FilterSwab {
         } as DateFilter
 
     }
+
 }
 export default FilterSwab

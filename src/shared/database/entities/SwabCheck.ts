@@ -30,6 +30,13 @@ export class SwabCheck {
 
     @Column({
         type: 'enum',
+        enum: SwabCheckType,
+        nullable: true
+    })
+    lastType: SwabCheckType
+
+    @Column({
+        type: 'enum',
         enum: SwabCheckResult
     })
     result: SwabCheckResult
@@ -46,12 +53,14 @@ export class SwabCheck {
     @Column({ nullable: true, length: 500 })
     observation: string
 
-
     @Column({ nullable: true, length: 250 })
     sameFaucetJustification: string
 
     @Column({ nullable: true, length: 250 })
     UpdateSwabJustification: string
+
+    @Column({ nullable: true, length: 500 })
+    justificationLastReprovation: string
 
     @CreateDateColumn()
     createdAt: Date;

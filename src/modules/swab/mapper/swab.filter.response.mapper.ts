@@ -4,7 +4,6 @@ import { SwabResponseDTO } from "../dto/types/filter/swab.filter.response.dto"
 export class SwabResponseMapper {
 
     static toResponse(swab: Swab): SwabResponseDTO {
-
         return {
             id: swab.id,
 
@@ -39,9 +38,14 @@ export class SwabResponseMapper {
             check: swab.check && {
                 id: swab.check.id,
                 type: swab.check.type,
+                lastType: swab.check.lastType,
                 result: swab.check.result,
                 validatedAt: swab.check.validatedAt,
-                valueAtp: swab.check.valueAtp
+                valueAtp: swab.check.valueAtp,
+                sameFaucetJustification: swab.check.sameFaucetJustification,
+                updateSwabJustification: swab.check.UpdateSwabJustification,
+                observation: swab.check.observation,
+                justificationLastReprovation: swab.check.justificationLastReprovation
             }
         }
     }

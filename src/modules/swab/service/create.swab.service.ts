@@ -13,6 +13,7 @@ import { validateLocation } from "../dto/types/create/validateLocation"
 import SwabRepository from "../repository/swab.repository"
 import SwabSequenceRepository from "../repository/swab-sequence.repository"
 import LocationRepository from "../repository/tank.repository"
+import { SwabCheckResult } from "../domain/swabResult.enum"
 
 class CreateSwab {
     constructor(
@@ -64,6 +65,13 @@ class CreateSwab {
 
             const swabsOfLocation: Swab[] = swabHistory[location.name]
 
+            //Se o ultimo swab estiver reprovado pego a observação da repovação e adiciono no check do swab
+            let justificationLastSwab: string = ''
+
+            if (swabsOfLocation.length && swabsOfLocation[0].check.result === SwabCheckResult.REPROVED) {
+                justificationLastSwab = swabsOfLocation[0].check.observation
+            }
+
             const lastFaucet: string = swabsOfLocation.length ?
                 swabsOfLocation[0].faucetCode : 'N/D' //Caso não exista historico no tank defino a ultima torneira como NOT DEFINED
 
@@ -76,8 +84,10 @@ class CreateSwab {
                 swabType,
                 payload.companyId,
                 internalCode,
-                lastFaucet
+                lastFaucet,
+                justificationLastSwab
             )
+
             createdSwabs.push({
                 swab,
                 tankLocation: location.name

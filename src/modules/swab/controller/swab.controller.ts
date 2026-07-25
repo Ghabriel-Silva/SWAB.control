@@ -11,7 +11,7 @@ type Params = {
     id: string
 }
 class SwabController {
-    constructor(private swabService: SwabService) {}
+    constructor(private swabService: SwabService) { }
 
     create = async (req: Request, res: Response) => {
         const payloud = req.user as MyJwtPayload
@@ -44,6 +44,7 @@ class SwabController {
     cancelSwab = async (req: Request<Params>, res: Response) => {
         const { id } = req.params
         const payload: MyJwtPayload = req.user as MyJwtPayload
+        console.log(req.body)
         const data = req.body
 
         const resul: CancelResponse = await this.swabService.cancelSwab(id, payload, data)

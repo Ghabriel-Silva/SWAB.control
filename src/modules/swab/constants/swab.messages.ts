@@ -28,7 +28,10 @@ export const SWAB_MESSAGES = {
             'Swab ATP não pode ser mudado para swab do tipo VISUAL sem justificativa, justifique de forma clara o motivo da mudança',
 
         UPDATE_ERROR: (location: string) =>
-            `Não foi possível atualizar o swab do localização ${location}`
+            `Não foi possível atualizar o swab do localização ${location}`,
+
+        NOT_UPDATED_SWAB_TYPE:
+            'Não é permitido alterar o tipo do swab mais de uma vez para o mesmo registro.'
     },
 
     DELETE: {

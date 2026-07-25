@@ -13,6 +13,8 @@ class CancelSwab {
 
     execute = async (swabId: string, payload: MyJwtPayload, data: CancelSwabType): Promise<CancelResponse> => {
 
+        console.log(data.cancelReason)
+        
         const swabExists: Swab = await this.validateSwabExists(
             swabId,
             payload.companyId

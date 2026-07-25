@@ -17,10 +17,13 @@ export class Location {
     description: string
 
     @Column('int', { nullable: true })
-    atpLimit: number 
+    atpLimit: number
 
     @CreateDateColumn()
     createdAt: Date
+
+    @Column('boolean', { default: true })
+    createAt: boolean
 
     @UpdateDateColumn()
     updatedAt: Date
