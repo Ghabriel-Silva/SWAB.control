@@ -8,43 +8,48 @@ export class CreateOperator {
 
     execute = async (companyId: string, data: CreateOperatorType) => {
 
-        const wasPosition = await this.existePosition(companyId, data.position)
+        await this.existePosition(companyId, data.position)
+        await this.existeLaboratory(companyId, data.laboratory)
 
-        return {
-            companyId,
-            ...data
+        //validar se o nome ja existe um nome igual 
+
+
+        //Criar usuario
+        const create = await this.operatorRepository.createOperator(companyId, data)
+
+        if (!create) {
+            throw new AppError(
+                404,
+                'Erro ao criar usuário'
+            )
         }
+
+        return !!create
     }
 
-    existePosition = async (companyId: string, positionId: string): Promise<boolean> => {
+    existePosition = async (companyId: string, positionId: string): Promise<void> => {
         const possition = await this.operatorRepository.existPosition(companyId, positionId)
 
         if (!possition) {
             throw new AppError(
                 404,
-                `Não foi encontrado nenhum registro para essa possição`
+                `Cargo invalido, verifique se esse registro existe mesmo`
             )
         }
-        return possition
     }
 
-    existeLaboratory = {
+    existeLaboratory = async (companyId: string, laboratoryId: string): Promise<void> => {
+        const laboratory = await this.operatorRepository.existeLaboratory(companyId, laboratoryId)
 
+        if (!laboratory) {
+            throw new AppError(
+                404,
+                `Laborátorio invalido, verifique se esse registro existe mesmo`
+            )
+        }
     }
 
-    //Para criar um operador tenho que primeiro apontar para um Position ou seja dever existir position
-    //preciso ter um laboratorio a qual ele fara 
+    existeName = async (companyId: string, name: string) => {
 
-    //validar se a possição que foi envia existe ou esta cadastrada
-
-
-
-
-    //validar se o laboratorio esta cadastrado e se existe 
-
-
-    //caso os 2 passe ai sim valida
-
-
-
+    }
 }
