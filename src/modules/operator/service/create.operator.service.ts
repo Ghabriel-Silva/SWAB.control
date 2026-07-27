@@ -1,3 +1,4 @@
+import AppError from "../../../shared/errors/AppError";
 import { CreateOperatorType } from "../dto/schemas/create.operator";
 import OperatorRepository from "../repository/operator.repository";
 
@@ -5,7 +6,9 @@ import OperatorRepository from "../repository/operator.repository";
 export class CreateOperator {
     constructor(private operatorRepository: OperatorRepository) { }
 
-    execute = (companyId: string, data: CreateOperatorType) => {
+    execute = async (companyId: string, data: CreateOperatorType) => {
+
+        const wasPosition = await this.existePosition(companyId, data.position)
 
         return {
             companyId,
@@ -13,8 +16,16 @@ export class CreateOperator {
         }
     }
 
-    existePosition = () => {
+    existePosition = async (companyId: string, positionId: string): Promise<boolean> => {
+        const possition = await this.operatorRepository.existPosition(companyId, positionId)
 
+        if (!possition) {
+            throw new AppError(
+                404,
+                `Não foi encontrado nenhum registro para essa possição`
+            )
+        }
+        return possition
     }
 
     existeLaboratory = {

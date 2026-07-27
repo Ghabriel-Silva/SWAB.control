@@ -14,9 +14,6 @@ class OperatorService {
     createOperator = async (companyId: string, data: CreateOperatorType) => {
         return this.operatorCreate.execute(companyId, data)
     }
-
-
-
 }
 
 
