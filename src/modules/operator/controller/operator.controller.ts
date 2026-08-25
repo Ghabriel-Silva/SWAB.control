@@ -4,8 +4,6 @@ import { successResponse } from "../../../shared/responses/success";
 import { Operator } from "../../../shared/database/entities/Operator";
 import { OPERATOR_MESSAGES } from "../constants.ts/operator.messages";
 import { CreateOperatorType } from "../dto/schemas/create.operator";
-import { MyJwtPayload } from "../../../shared/auth/types/auth.types";
-
 class OperatorController {
     constructor(
         private operatorServicer: OperatorService) { }
@@ -28,12 +26,12 @@ class OperatorController {
         const data = req.body as CreateOperatorType
         const companyId = req.user?.companyId as string
 
-        const resp = await this.operatorServicer.createOperator(companyId, data)
+        const resp: Operator = await this.operatorServicer.createOperator(companyId, data)
 
         res.json(
             successResponse(
-                resp,
-                'Operador Criado Com Sucesso',
+                !!resp,
+                OPERATOR_MESSAGES.CREATE.CREATE_SUCCESS(resp.name),
                 null
             )
         )

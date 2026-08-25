@@ -7,8 +7,6 @@ import { UserRole } from "../user/domain/role.enum";
 import SwabController from "./controller/swab.controller";
 import SwabService from "./service/swab.service";
 import SwabRepository from "./repository/swab.repository";
-import TankRepository from "./repository/tank.repository";
-import OperatorRepository from "./repository/operator.repository";
 import SwabSequenceRepository from "./repository/swab-sequence.repository";
 import { createSwabSchema } from "./dto/schemas/create.swab.schema";
 import { updateSwabSchema } from "./dto/schemas/update.swab.schema";
@@ -21,6 +19,7 @@ import CancelSwab from "./service/status.swab.service";
 import FilterSwab from "./service/filter.swab.service";
 import SwabFilterRepository from "./repository/filter.swab.repository";
 import LocationRepository from "./repository/tank.repository";
+import OperatorRepository from "../operator/repository/operator.repository";
 
 const swabRoutes = Router()
 

@@ -6,8 +6,8 @@ import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
 import { SwabCheckType } from "../domain/swabCheck.enum";
 import { SWAB_MESSAGES } from "../constants/swab.messages";
 import SwabRepository from "../repository/swab.repository";
-import OperatorRepository from "../repository/operator.repository";
 import { SwabCheckResult } from "../domain/swabResult.enum";
+import OperatorRepository from "../../operator/repository/operator.repository";
 
 class UpdateSwab {
     constructor(

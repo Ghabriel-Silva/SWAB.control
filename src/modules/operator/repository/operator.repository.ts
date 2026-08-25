@@ -70,6 +70,35 @@ class OperatorRepository {
         return this.operatorRepository.save(createOperator)
     }
 
+
+
+    findById = async (
+        operatorId: string,
+        companyId: string
+    ): Promise<Operator | null> => {
+
+        return await this.operatorRepository.findOne({
+            where: {
+                id: operatorId,
+                company: {
+                    id: companyId
+                }
+            }
+        })
+    }
+
+    existName = async (companyId: string, name: string): Promise<Operator | null> => {
+        return this.operatorRepository.findOne({
+            where: {
+                name: name,
+                company: {
+                    id: companyId
+                }
+            }
+        })
+    }
+
+
 }
 
 export default OperatorRepository

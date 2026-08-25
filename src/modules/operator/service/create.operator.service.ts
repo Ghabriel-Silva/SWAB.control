@@ -1,4 +1,6 @@
+import { Operator } from "../../../shared/database/entities/Operator";
 import AppError from "../../../shared/errors/AppError";
+import { OPERATOR_MESSAGES } from "../constants.ts/operator.messages";
 import { CreateOperatorType } from "../dto/schemas/create.operator";
 import OperatorRepository from "../repository/operator.repository";
 
@@ -6,13 +8,13 @@ import OperatorRepository from "../repository/operator.repository";
 export class CreateOperator {
     constructor(private operatorRepository: OperatorRepository) { }
 
-    execute = async (companyId: string, data: CreateOperatorType) => {
+    execute = async (companyId: string, data: CreateOperatorType): Promise<Operator> => {
 
         await this.existePosition(companyId, data.position)
         await this.existeLaboratory(companyId, data.laboratory)
 
-        //validar se o nome ja existe um nome igual 
-
+        //valida se o nome ja existe um nome igual 
+        await this.existeName(companyId, data.name)
 
         //Criar usuario
         const create = await this.operatorRepository.createOperator(companyId, data)
@@ -20,11 +22,11 @@ export class CreateOperator {
         if (!create) {
             throw new AppError(
                 404,
-                'Erro ao criar usuário'
+                OPERATOR_MESSAGES.CREATE.CREATE_ERROR
             )
         }
 
-        return !!create
+        return create
     }
 
     existePosition = async (companyId: string, positionId: string): Promise<void> => {
@@ -33,7 +35,7 @@ export class CreateOperator {
         if (!possition) {
             throw new AppError(
                 404,
-                `Cargo invalido, verifique se esse registro existe mesmo`
+                OPERATOR_MESSAGES.CREATE.INVALID_CARGO
             )
         }
     }
@@ -44,12 +46,20 @@ export class CreateOperator {
         if (!laboratory) {
             throw new AppError(
                 404,
-                `Laborátorio invalido, verifique se esse registro existe mesmo`
+                OPERATOR_MESSAGES.CREATE.INVALID_LABORATORY
             )
         }
     }
 
-    existeName = async (companyId: string, name: string) => {
+    existeName = async (companyId: string, name: string): Promise<void> => {
+        const normalizadName: string = name.toUpperCase().trim()
+        const nameExist = await this.operatorRepository.existName(companyId, normalizadName)
 
+        if (nameExist) {
+            throw new AppError(
+                409,
+                OPERATOR_MESSAGES.CREATE.NAME_ALREADY_EXISTS(normalizadName)
+            )
+        }
     }
 }
