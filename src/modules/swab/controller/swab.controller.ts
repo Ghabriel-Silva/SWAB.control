@@ -6,10 +6,9 @@ import { SWAB_MESSAGES } from "../constants/swab.messages";
 import { UpdateSwabType } from "../dto/schemas/update.swab.schema";
 import { CancelResponse } from "../dto/types/cancel/cancelResponse";
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema";
+import { SwabCheckResult } from "../domain/swabResult.enum";
+import { Params } from "../../../shared/types/params.type";
 
-type Params = {
-    id: string
-}
 class SwabController {
     constructor(private swabService: SwabService) { }
 
@@ -33,10 +32,12 @@ class SwabController {
 
         const result = await this.swabService.update(id, payload, data)
 
+        const resultSwab: string =
+            data.result === SwabCheckResult.APPROVED ? "Finalizado" : "Atualizado"
         return res.json(
             successResponse(
                 result,
-                SWAB_MESSAGES.UPDATE.SUCCESS(result.internalCode)
+                SWAB_MESSAGES.UPDATE.SUCCESS(result.internalCode, resultSwab)
             )
         )
     }
@@ -44,7 +45,6 @@ class SwabController {
     cancelSwab = async (req: Request<Params>, res: Response) => {
         const { id } = req.params
         const payload: MyJwtPayload = req.user as MyJwtPayload
-        console.log(req.body)
         const data = req.body
 
         const resul: CancelResponse = await this.swabService.cancelSwab(id, payload, data)

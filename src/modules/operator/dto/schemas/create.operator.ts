@@ -1,21 +1,18 @@
 import * as yup from "yup"
+import { BaseOperatorSchema } from "./base.operator"
 
-export const CreateOperatorSchema = yup.object({
+export const CreateOperatorSchema = BaseOperatorSchema.shape({
     name: yup
         .string()
-        .max(50, 'O nome deve conter no maximo 50 caracteres')
-        .min(5, "O nome deve conter no minimo 5 caracteres")
-        .required(),
+        .required('O nome é obrigatório'),
 
     position: yup
         .string()
-        .uuid('ID inválido')
-        .required(),
+        .required('Cargo é obrigatório'),
 
     laboratory: yup
         .string()
-        .uuid('ID inválido')
-        .required()
+        .required('Laboratório é obrigatório')
 })
 
 export type CreateOperatorType = yup.InferType<typeof CreateOperatorSchema>

@@ -11,8 +11,9 @@ export const SWAB_MESSAGES = {
     },
 
     UPDATE: {
-        SUCCESS: (swabLote: string) =>
-            `SWAB ${swabLote} atualizado com sucesso`,
+        SUCCESS: (swabLote: string, message:string) =>
+            `SWAB ${swabLote} ${message} com sucesso`,
+
 
         NOT_FOUND: 'Swab não encontrado ou cancelado',
 

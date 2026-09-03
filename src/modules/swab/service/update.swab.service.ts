@@ -153,7 +153,7 @@ class UpdateSwab {
             dataToUpdate.check!.lastType = swabExists.check.type
         }
 
-        //Aqui podera ser feito apenas uma mudança de swab isso porque dentro da regra de negócio, a troca de tipo de swab dificilmente acontece e mais de uma mudança para o mesmo não pode existirc
+        //Aqui podera ser feito apenas uma mudança de swab isso porque dentro da regra de negócio, a troca de tipo de swab dificilmente acontece e mais de uma mudança para o mesmo não pode existir
         const valueIsSame = dataToUpdate.check?.type === swabExists.check.type
 
         if (dataToUpdate.check?.type && swabExists.check.lastType && !valueIsSame) {

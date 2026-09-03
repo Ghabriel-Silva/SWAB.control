@@ -4,6 +4,7 @@ import { AppDataSource } from "../../../shared/database/data-source"
 import { OperatorPosition } from "../../../shared/database/entities/OperatorPosition"
 import { Laboratory } from "../../../shared/database/entities/Laboratory"
 import { CreateOperatorType } from "../dto/schemas/create.operator"
+import { UpdateOperatorType } from "../dto/schemas/update.operator"
 
 
 class OperatorRepository {
@@ -54,7 +55,7 @@ class OperatorRepository {
     }
 
     createOperator = async (companyId: string, data: CreateOperatorType): Promise<Operator> => {
-        const createOperator = await this.operatorRepository.create({
+        const createOperator = this.operatorRepository.create({
             company: {
                 id: companyId
             },
@@ -98,6 +99,9 @@ class OperatorRepository {
         })
     }
 
+    updateOperator = async (companyId: string, data: UpdateOperatorType, id: string) => {
+      
+    }
 
 }
 
