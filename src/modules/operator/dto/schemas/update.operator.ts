@@ -14,6 +14,10 @@ export const UpdateOperatorSchema = BaseOperatorSchema.shape({
     laboratory: yup
         .string()
         .optional(),
+
+    isActive: yup
+        .boolean()
+        .optional(),
 })
 
 export type UpdateOperatorType = yup.InferType<typeof UpdateOperatorSchema>

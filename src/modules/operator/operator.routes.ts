@@ -46,8 +46,8 @@ operatorRoutes.post('/',
 
 operatorRoutes.post('/:id',
     authenticateMiddleware,
-    validateData(UpdateOperatorSchema, 'body'),
     validateData(swabIdParamsSchema, 'params'),
+    validateData(UpdateOperatorSchema, 'body'),
     authorizeRoles(UserRole.ADMIN, UserRole.OWNER),
     asyncHandler(operatorController.updateOperator)
 )

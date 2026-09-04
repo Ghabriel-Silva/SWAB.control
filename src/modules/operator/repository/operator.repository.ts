@@ -99,8 +99,23 @@ class OperatorRepository {
         })
     }
 
-    updateOperator = async (companyId: string, data: UpdateOperatorType, id: string) => {
-      
+    updateOperator = async (idOperator: string, data: UpdateOperatorType) => {
+        const updateUser = await this.operatorRepository.update(
+            {
+                id: idOperator
+            },
+            {
+                laboratory: {
+                    id: data.laboratory
+                },
+                position: {
+                    id: data.position
+                },
+                isActive: data.isActive,
+                name: data.name
+            }
+        )
+        return updateUser
     }
 
 }

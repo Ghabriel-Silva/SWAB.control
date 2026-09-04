@@ -31,7 +31,8 @@ class UpdateOperator {
             await this.existPosition(companyId, data.position)
         }
 
-        // const updateResponse = await this.operatorRepository.updateOperator()
+
+        const updateResponse = await this.operatorRepository.updateOperator(operatorData.id, data)
 
 
         return operatorData
