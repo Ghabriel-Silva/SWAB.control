@@ -44,7 +44,7 @@ operatorRoutes.post('/',
     asyncHandler(operatorController.createOperator)
 )
 
-operatorRoutes.post('/:id',
+operatorRoutes.patch('/:id',
     authenticateMiddleware,
     validateData(swabIdParamsSchema, 'params'),
     validateData(UpdateOperatorSchema, 'body'),

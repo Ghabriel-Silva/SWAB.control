@@ -1,3 +1,4 @@
+import { UpdateResult } from "typeorm";
 import { Operator } from "../../../shared/database/entities/Operator";
 import AppError from "../../../shared/errors/AppError";
 import { UpdateOperatorType } from "../dto/schemas/update.operator";
@@ -10,17 +11,23 @@ class UpdateOperator {
         private operatorRepository: OperatorRepository
     ) { }
 
-    execute = async (companyId: string, data: UpdateOperatorType, id: string) => {
+    execute = async (companyId: string, data: UpdateOperatorType, id: string): Promise<boolean> => {
         //Buscar os dados atuais do operador 
         const operatorData: Operator | null = await this.getOperatorById(id, companyId)
 
-        //Verificar se o nome anterior é ingual ao que esta sendo enviado
-        if (operatorData?.name === data.name?.trim()) {
-            throw new AppError(
-                409,
-                'O nome é o mesmo'
-            )
+        //valido se o nome é igual ao que tenho no sistema se for passa, se não for valido se o nome consta no sistema
+        if (data.name !== undefined && data.name !== operatorData.name) {
+            const validNameExiste = await this.operatorRepository.existName(companyId, data.name)
+
+            if (validNameExiste) {
+                throw new AppError(
+                    409,
+                    'O nome ja consta no sistema'
+                )
+            }
         }
+
+
         //verificar se o laboratorio existe 
         if (data.laboratory) {
             await this.existLab(companyId, data.laboratory)
@@ -32,13 +39,12 @@ class UpdateOperator {
         }
 
 
-        const updateResponse = await this.operatorRepository.updateOperator(operatorData.id, data)
+        const updateResponse: UpdateResult = await this.operatorRepository.updateOperator(operatorData.id, data)
 
-
-        return operatorData
+        return true
     }
 
-    getOperatorById = async (operatorId: string, companyId: string) => {
+    getOperatorById = async (operatorId: string, companyId: string): Promise<Operator> => {
         const operatorData = await this.operatorRepository.findById(operatorId, companyId)
 
         if (!operatorData) {

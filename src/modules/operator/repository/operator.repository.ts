@@ -1,4 +1,4 @@
-import { Repository } from "typeorm"
+import { Repository, UpdateResult } from "typeorm"
 import { Operator } from "../../../shared/database/entities/Operator"
 import { AppDataSource } from "../../../shared/database/data-source"
 import { OperatorPosition } from "../../../shared/database/entities/OperatorPosition"
@@ -99,8 +99,8 @@ class OperatorRepository {
         })
     }
 
-    updateOperator = async (idOperator: string, data: UpdateOperatorType) => {
-        const updateUser = await this.operatorRepository.update(
+    updateOperator = async (idOperator: string, data: UpdateOperatorType): Promise<UpdateResult> => {
+        return await this.operatorRepository.update(
             {
                 id: idOperator
             },
@@ -115,9 +115,8 @@ class OperatorRepository {
                 name: data.name
             }
         )
-        return updateUser
-    }
 
+    }
 }
 
 export default OperatorRepository
