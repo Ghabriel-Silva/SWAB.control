@@ -52,7 +52,7 @@ export class CreateOperator {
     }
 
     existeName = async (companyId: string, name: string): Promise<void> => {
-        const normalizadName: string = name.toUpperCase().trim()
+        const normalizadName: string = name.toLowerCase().trim()
         const nameExist = await this.operatorRepository.existName(companyId, normalizadName)
 
         if (nameExist) {

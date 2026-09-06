@@ -3,6 +3,7 @@ import { Operator } from "../../../shared/database/entities/Operator";
 import AppError from "../../../shared/errors/AppError";
 import { UpdateOperatorType } from "../dto/schemas/update.operator";
 import OperatorRepository from "../repository/operator.repository";
+import { OPERATOR_MESSAGES } from "../constants.ts/operator.messages";
 
 
 
@@ -16,41 +17,44 @@ class UpdateOperator {
         const operatorData: Operator | null = await this.getOperatorById(id, companyId)
 
         //valido se o nome é igual ao que tenho no sistema se for passa, se não for valido se o nome consta no sistema
-        if (data.name !== undefined && data.name !== operatorData.name) {
-            const validNameExiste = await this.operatorRepository.existName(companyId, data.name)
+        if (data.name !== undefined && data.name.trim().toLowerCase() !== operatorData.name) {
+            const validNameExiste = await this.operatorRepository.existName(
+                companyId,
+                data.name,
+            )
 
             if (validNameExiste) {
                 throw new AppError(
                     409,
-                    'O nome ja consta no sistema'
+                    OPERATOR_MESSAGES.UPDATE.NAME_ALREADY_EXISTS(data.name.trim())
                 )
             }
         }
 
 
         //verificar se o laboratorio existe 
-        if (data.laboratory) {
+        if (data.laboratory !== undefined) {
             await this.existLab(companyId, data.laboratory)
         }
 
         //validar se a possition existe 
-        if (data.position) {
+        if (data.position !== undefined) {
             await this.existPosition(companyId, data.position)
         }
 
 
-        const updateResponse: UpdateResult = await this.operatorRepository.updateOperator(operatorData.id, data)
+        await this.operatorRepository.updateOperator(operatorData.id, data)
 
         return true
     }
 
     getOperatorById = async (operatorId: string, companyId: string): Promise<Operator> => {
-        const operatorData = await this.operatorRepository.findById(operatorId, companyId)
+        const operatorData: Operator | null = await this.operatorRepository.findById(operatorId, companyId)
 
         if (!operatorData) {
             throw new AppError(
                 404,
-                'Esse operador não existe'
+                OPERATOR_MESSAGES.UPDATE.OPERATOR_NOT_FOUND
             )
         }
 
@@ -62,7 +66,7 @@ class UpdateOperator {
         if (!existLaboratory) {
             throw new AppError(
                 404,
-                'Laboratório não encontrado'
+                OPERATOR_MESSAGES.UPDATE.INVALID_LABORATORY
             )
         }
     }
@@ -72,7 +76,7 @@ class UpdateOperator {
         if (!existPosition) {
             throw new AppError(
                 404,
-                'Nenhum registro encontrado para cargo'
+                OPERATOR_MESSAGES.UPDATE.INVALID_CARGO
             )
         }
     }

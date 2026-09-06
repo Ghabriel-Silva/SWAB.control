@@ -96,6 +96,7 @@ class OperatorRepository {
                     id: companyId
                 }
             }
+            
         })
     }
 
