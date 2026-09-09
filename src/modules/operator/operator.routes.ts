@@ -13,6 +13,7 @@ import { CreateOperatorSchema } from "./dto/schemas/create.operator";
 import UpdateOperator from "./service/update.operator.service";
 import { swabIdParamsSchema } from "../swab/dto/schemas/swab.params.schema";
 import { UpdateOperatorSchema } from "./dto/schemas/update.operator";
+import { GetOperatorSchema } from "./dto/schemas/get.operator";
 
 
 const operatorRoutes = Router()
@@ -33,6 +34,7 @@ const operatorController = new OperatorController(operatorService)
 
 operatorRoutes.get('/',
     authenticateMiddleware,
+    validateData(GetOperatorSchema, 'body'),
     authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
     asyncHandler(operatorController.getOperator)
 )

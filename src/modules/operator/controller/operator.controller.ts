@@ -6,20 +6,21 @@ import { OPERATOR_MESSAGES } from "../constants.ts/operator.messages";
 import { CreateOperatorType } from "../dto/schemas/create.operator";
 import { UpdateOperatorType } from "../dto/schemas/update.operator";
 import { Params } from "../../../shared/types/params.type";
+import { GetOperatorType } from "../dto/schemas/get.operator";
 class OperatorController {
     constructor(
         private operatorServicer: OperatorService) { }
 
     getOperator = async (req: Request, res: Response) => {
         const companyId = req.user?.companyId as string
-
-        const resp: Operator[] = await this.operatorServicer.getOperators(companyId)
+        const dataParams: GetOperatorType = req.body
+        const resp = await this.operatorServicer.getOperators(companyId, dataParams)
 
         res.json(
             successResponse(
-                resp,
+                resp.operators,
                 OPERATOR_MESSAGES.GET.OPERATOR_FOUND,
-                null,
+                resp.total,
             )
         )
     }
@@ -48,7 +49,7 @@ class OperatorController {
         res.json(
             successResponse(
                 resp,
-                'Operador Atualizado com Sucesso',
+                OPERATOR_MESSAGES.UPDATE.UPDATE_SUCCESS,
                 null
             )
         )

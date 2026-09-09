@@ -1,4 +1,5 @@
 import { CreateOperatorType } from "../dto/schemas/create.operator"
+import { GetOperatorType } from "../dto/schemas/get.operator"
 import { UpdateOperatorType } from "../dto/schemas/update.operator"
 import { CreateOperator } from "./create.operator.service"
 import GetOperator from "./get.operator.service"
@@ -10,8 +11,8 @@ class OperatorService {
         private operatorUpdate: UpdateOperator
     ) { }
 
-    getOperators = async (companyId: string) => {
-        return this.operatorGet.execute(companyId)
+    getOperators = async (companyId: string, dataParams: GetOperatorType) => {
+        return this.operatorGet.execute(companyId, dataParams)
     }
 
     createOperator = async (companyId: string, data: CreateOperatorType) => {

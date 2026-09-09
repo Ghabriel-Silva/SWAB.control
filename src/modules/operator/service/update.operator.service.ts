@@ -1,23 +1,25 @@
-import { UpdateResult } from "typeorm";
 import { Operator } from "../../../shared/database/entities/Operator";
 import AppError from "../../../shared/errors/AppError";
 import { UpdateOperatorType } from "../dto/schemas/update.operator";
 import OperatorRepository from "../repository/operator.repository";
 import { OPERATOR_MESSAGES } from "../constants.ts/operator.messages";
+import { UpdateResult } from "typeorm";
 
 
 
 class UpdateOperator {
     constructor(
         private operatorRepository: OperatorRepository
-    ) { }
-
+    ) {}
     execute = async (companyId: string, data: UpdateOperatorType, id: string): Promise<boolean> => {
         //Buscar os dados atuais do operador 
         const operatorData: Operator | null = await this.getOperatorById(id, companyId)
 
         //valido se o nome é igual ao que tenho no sistema se for passa, se não for valido se o nome consta no sistema
-        if (data.name !== undefined && data.name.trim().toLowerCase() !== operatorData.name) {
+        if (data.name !== undefined
+            && data.name.trim().toLowerCase()
+            !== operatorData.name.toLowerCase()
+        ) {
             const validNameExiste = await this.operatorRepository.existName(
                 companyId,
                 data.name,
@@ -43,7 +45,14 @@ class UpdateOperator {
         }
 
 
-        await this.operatorRepository.updateOperator(operatorData.id, data)
+        const operator: UpdateResult = await this.operatorRepository.updateOperator(operatorData.id, data)
+
+        if (operator.affected === 0) {
+            throw new AppError(
+                500,
+                OPERATOR_MESSAGES.UPDATE.UPDATE_ERROR
+            )
+        }
 
         return true
     }

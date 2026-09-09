@@ -5,6 +5,7 @@ import { OperatorPosition } from "../../../shared/database/entities/OperatorPosi
 import { Laboratory } from "../../../shared/database/entities/Laboratory"
 import { CreateOperatorType } from "../dto/schemas/create.operator"
 import { UpdateOperatorType } from "../dto/schemas/update.operator"
+import { GetOperatorType } from "../dto/schemas/get.operator"
 
 
 class OperatorRepository {
@@ -18,18 +19,56 @@ class OperatorRepository {
         this.laboratoryRepository = AppDataSource.getRepository(Laboratory)
     }
 
-    getOperator = async (companyId: string): Promise<Operator[]> => {
-        return await this.operatorRepository.find({
-            where: {
-                company: {
-                    id: companyId
-                },
-                isActive: true
-            },
-            relations: {
-                position: true
-            }
-        })
+    getOperator = async (companyId: string, dataParams: GetOperatorType) => {
+        // return await this.operatorRepository.find({
+        //     where: {
+        //         company: {
+        //             id: companyId
+        //         },
+        //         isActive: true
+        //     },
+        //     relations: {
+        //         position: true
+        //     }
+        // })
+
+        const query = this.operatorRepository
+            .createQueryBuilder('operator')
+            .leftJoinAndSelect('operator.laboratory', 'laboratory')
+            .leftJoinAndSelect('operator.position', 'position')
+            .where('operator.company = :companyId', { companyId: companyId })
+            .orderBy('operator.createdAt', 'ASC')
+            .skip((dataParams.page! - 1) * dataParams.limit!)
+            .take(dataParams.limit)
+
+        if (dataParams.laboratory) {
+            query.andWhere('laboratory.id IN (:...laboratoryId)', {
+                laboratoryId: dataParams.laboratory
+            })
+        }
+        if (dataParams.position) {
+            query.andWhere('position.id IN (:...positionId)', {
+                positionId: dataParams.position
+            })
+        }
+        if (dataParams.isActive) {
+            query.andWhere('operator.isActive = :isActive', {
+                isActive: dataParams.isActive
+            })
+        }
+        if (dataParams.name) {
+            query.andWhere('operator.name LIKE :name', {
+                name: `%${dataParams.name}%`
+            })
+        }
+
+        const [operators, total] = await query.getManyAndCount()
+
+        return {
+            operators,
+            total
+        }
+
     }
 
     existPosition = async (companyId: string, positionId: string): Promise<boolean> => {
@@ -96,7 +135,7 @@ class OperatorRepository {
                     id: companyId
                 }
             }
-            
+
         })
     }
 
