@@ -3,7 +3,7 @@ import { Swab } from "../../../shared/database/entities/Swab"
 import { AppDataSource } from "../../../shared/database/data-source"
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema"
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
-import { RepositoryResponse } from "../dto/types/filter/respository.response"
+import { FilterResponseRepo } from "../../../shared/types/repository.filter"
 
 
 class SwabFilterRepository {
@@ -13,7 +13,7 @@ class SwabFilterRepository {
         this.swabFilterRepository = AppDataSource.getRepository(Swab)
     }
 
-    filter = async (filters: FilterSwabsQueryType, payloud: MyJwtPayload): Promise<RepositoryResponse> => {
+    filter = async (filters: FilterSwabsQueryType, payloud: MyJwtPayload): Promise<FilterResponseRepo<Swab[]>> => {
         const order: 'ASC' | 'DESC' = filters.order ?? 'DESC'
 
         const query = this.swabFilterRepository
@@ -72,9 +72,9 @@ class SwabFilterRepository {
         const [swabs, total] = await query.getManyAndCount()
 
         return {
-            swabs,
+            data: swabs,
             total
-        } as RepositoryResponse
+        } as FilterResponseRepo<Swab[]>
     }
 
 

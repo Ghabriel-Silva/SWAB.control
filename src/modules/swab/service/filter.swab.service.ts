@@ -1,20 +1,20 @@
 import { MyJwtPayload } from "../../../shared/auth/types/auth.types"
+import { Swab } from "../../../shared/database/entities/Swab"
+import { MetaFilter, SwabFilterResponse } from "../../../shared/types/filters.response"
+import { FilterResponseRepo } from "../../../shared/types/repository.filter"
 import { FilterSwabsQueryType } from "../dto/schemas/filter.swabs.query.schema"
 import { DateFilter } from "../dto/types/filter/date.filter"
-import { RepositoryResponse } from "../dto/types/filter/respository.response"
-import { MetaSwabFilter, SwabFilterResponse } from "../dto/types/filter/swab.filter.response"
 import { SwabResponseDTO } from "../dto/types/filter/swab.filter.response.dto"
 import { SwabResponseMapper } from "../mapper/swab.filter.response.mapper"
 import SwabFilterRepository from "../repository/filter.swab.repository"
 import { addDays, subDays, startOfDay } from "date-fns";
-import SwabRepository from "../repository/swab.repository"
 
 class FilterSwab {
     constructor(
         private swabFilterRepository: SwabFilterRepository,
     ) { }
 
-    execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType): Promise<SwabFilterResponse> => {
+    execute = async (payload: MyJwtPayload, filterSwabs: FilterSwabsQueryType): Promise<SwabFilterResponse<SwabResponseDTO[]>> => {
         const { startDate, endDate }: DateFilter = this.validateDate(filterSwabs.startDate, filterSwabs.endDate)
 
         filterSwabs.startDate = startDate,
@@ -27,21 +27,21 @@ class FilterSwab {
         filterSwabs.limit = limit
 
 
-        const resp: RepositoryResponse = await this.swabFilterRepository.filter(filterSwabs, payload)
+        const resp: FilterResponseRepo<Swab[]> = await this.swabFilterRepository.filter(filterSwabs, payload)
 
-        const mapperRes: SwabResponseDTO[] = SwabResponseMapper.toResponseList(resp.swabs)
-      
-        const meta: MetaSwabFilter = {
-            limit: filterSwabs.limit,
-            page: filterSwabs.page,
+        const mapperRes: SwabResponseDTO[] = SwabResponseMapper.toResponseList(resp.data)
+
+        const meta: MetaFilter = {
+            limit: limit,
+            page: page,
             total: resp.total,
-            totalPages: Math.ceil((resp.total / filterSwabs.limit))
+            totalPages: Math.ceil((resp.total / limit))
         }
 
         return {
             data: mapperRes,
-            meta: meta
-        } as SwabFilterResponse
+            meta
+        } as SwabFilterResponse<SwabResponseDTO[]>
     }
 
 

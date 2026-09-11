@@ -9,11 +9,25 @@ export const GetOperatorSchema = BaseOperatorSchema.shape({
 
     position: yup
         .array()
+        .transform((value, originalValue) => {
+            if (typeof originalValue === 'string') {
+                return [originalValue]
+            }
+
+            return value
+        })
         .of(yup.string().uuid('Cargo deve ser valido'))
         .optional(),
 
     laboratory: yup
         .array()
+        .transform((value, originalValue) => {
+            if (typeof originalValue === 'string') {
+                return [originalValue]
+            }
+
+            return value
+        })
         .of(yup.string().uuid('Setor deve ser valido'))
         .optional(),
 

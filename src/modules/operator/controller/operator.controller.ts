@@ -7,20 +7,21 @@ import { CreateOperatorType } from "../dto/schemas/create.operator";
 import { UpdateOperatorType } from "../dto/schemas/update.operator";
 import { Params } from "../../../shared/types/params.type";
 import { GetOperatorType } from "../dto/schemas/get.operator";
+import { SwabFilterResponse } from "../../../shared/types/filters.response";
 class OperatorController {
     constructor(
         private operatorServicer: OperatorService) { }
 
     getOperator = async (req: Request, res: Response) => {
         const companyId = req.user?.companyId as string
-        const dataParams: GetOperatorType = req.body
-        const resp = await this.operatorServicer.getOperators(companyId, dataParams)
+        const dataParams: GetOperatorType = req.query
+        const resp: SwabFilterResponse<Operator[]> = await this.operatorServicer.getOperators(companyId, dataParams)
 
         res.json(
             successResponse(
-                resp.operators,
+                resp.data,
                 OPERATOR_MESSAGES.GET.OPERATOR_FOUND,
-                resp.total,
+                resp.meta,
             )
         )
     }

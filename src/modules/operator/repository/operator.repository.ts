@@ -6,6 +6,7 @@ import { Laboratory } from "../../../shared/database/entities/Laboratory"
 import { CreateOperatorType } from "../dto/schemas/create.operator"
 import { UpdateOperatorType } from "../dto/schemas/update.operator"
 import { GetOperatorType } from "../dto/schemas/get.operator"
+import { FilterResponseRepo } from "../../../shared/types/repository.filter"
 
 
 class OperatorRepository {
@@ -19,19 +20,7 @@ class OperatorRepository {
         this.laboratoryRepository = AppDataSource.getRepository(Laboratory)
     }
 
-    getOperator = async (companyId: string, dataParams: GetOperatorType) => {
-        // return await this.operatorRepository.find({
-        //     where: {
-        //         company: {
-        //             id: companyId
-        //         },
-        //         isActive: true
-        //     },
-        //     relations: {
-        //         position: true
-        //     }
-        // })
-
+    getOperator = async (companyId: string, dataParams: GetOperatorType): Promise<FilterResponseRepo<Operator[]>> => {
         const query = this.operatorRepository
             .createQueryBuilder('operator')
             .leftJoinAndSelect('operator.laboratory', 'laboratory')
@@ -51,7 +40,7 @@ class OperatorRepository {
                 positionId: dataParams.position
             })
         }
-        if (dataParams.isActive) {
+        if (dataParams.isActive !== undefined) {
             query.andWhere('operator.isActive = :isActive', {
                 isActive: dataParams.isActive
             })
@@ -65,9 +54,9 @@ class OperatorRepository {
         const [operators, total] = await query.getManyAndCount()
 
         return {
-            operators,
+            data: operators,
             total
-        }
+        } as FilterResponseRepo<Operator[]>
 
     }
 

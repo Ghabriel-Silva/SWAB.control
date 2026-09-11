@@ -34,7 +34,7 @@ const operatorController = new OperatorController(operatorService)
 
 operatorRoutes.get('/',
     authenticateMiddleware,
-    validateData(GetOperatorSchema, 'body'),
+    validateData(GetOperatorSchema, 'query'),
     authorizeRoles(UserRole.ADMIN, UserRole.OWNER, UserRole.LAB),
     asyncHandler(operatorController.getOperator)
 )
